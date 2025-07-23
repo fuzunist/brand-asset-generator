@@ -11,6 +11,7 @@ const { generateLetterhead } = require('./letterheadGenerator');
 const { generateSocialMediaKit, createZipStream } = require('./socialMediaKitGenerator');
 const { generateDocument } = require('./documentGenerator');
 const { generateWebsiteReport } = require('./websiteReportGenerator');
+const AdKitGenerator = require('./adKitGenerator');
 const setupDatabase = require('./database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -1723,6 +1724,79 @@ app.get('/api/email-templates/saved', authMiddleware, async (req, res) => {
     } catch (error) {
         console.error('Error fetching saved templates:', error);
         res.status(500).json({ message: 'Server error while fetching templates.' });
+    }
+});
+
+// --- Ad Kit Generation Endpoint ---
+app.post('/api/ad-kit/generate', authMiddleware, async (req, res) => {
+    try {
+        const { dynamicText, brand_identity_id } = req.body;
+        
+        // Validate input
+        if (!dynamicText || !dynamicText.headline) {
+            return res.status(400).json({ 
+                message: 'Missing required fields. At least headline is required.' 
+            });
+        }
+
+        // For MVP, we'll use mock data for brand identity
+        // In production, this would be fetched from the database using brand_identity_id
+        const brandIdentity = {
+            name: 'Brand OS',
+            logoUrl: `${req.protocol}://${req.get('host')}/example_logo.png`,
+            primaryColor: '#4F46E5',
+            secondaryColor: '#EC4899',
+            fontFamily: 'Inter'
+        };
+
+        // If brand_identity_id is provided and not using mock data
+        if (brand_identity_id && !isDevelopment) {
+            // TODO: Fetch brand identity from database
+            // const brandData = await db.get('SELECT * FROM brand_identities WHERE id = ?', [brand_identity_id]);
+            // if (brandData) {
+            //     brandIdentity = {
+            //         name: brandData.name,
+            //         logoUrl: brandData.logo_url,
+            //         primaryColor: brandData.primary_color,
+            //         secondaryColor: brandData.secondary_color,
+            //         fontFamily: brandData.font_family
+            //     };
+            // }
+        }
+
+        // Initialize the ad kit generator
+        const adKitGenerator = new AdKitGenerator();
+        
+        // Check if we have API credentials
+        const hasApiCredentials = process.env.BANNERBEAR_API_KEY && 
+                                 process.env.BANNERBEAR_TEMPLATE_SQUARE;
+        
+        let zipBuffer;
+        
+        if (hasApiCredentials) {
+            // Generate using actual API
+            zipBuffer = await adKitGenerator.generateAdKit(dynamicText, brandIdentity);
+        } else {
+            // Use mock generator for testing
+            console.log('Using mock ad generator (no API credentials configured)');
+            zipBuffer = await adKitGenerator.generateMockAdKit(dynamicText, brandIdentity);
+        }
+
+        // Set headers for ZIP download
+        res.set({
+            'Content-Type': 'application/zip',
+            'Content-Disposition': `attachment; filename="${brandIdentity.name.replace(/[^a-z0-9]/gi, '_')}_Ad_Kit.zip"`,
+            'Content-Length': zipBuffer.length
+        });
+
+        res.send(zipBuffer);
+
+    } catch (error) {
+        console.error('Error generating ad kit:', error);
+        res.status(500).json({ 
+            message: 'Failed to generate ad kit', 
+            error: error.message 
+        });
     }
 });
 
