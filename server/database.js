@@ -87,6 +87,33 @@ async function setupDatabase() {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (brand_identity_id) REFERENCES brand_identities(id) ON DELETE CASCADE
         );
+
+        -- thought_leadership_settings table: Stores user preferences for content generation
+        CREATE TABLE IF NOT EXISTS thought_leadership_settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            account_id INTEGER NOT NULL,
+            industry TEXT NOT NULL,
+            target_audience TEXT NOT NULL,
+            preferred_platform TEXT NOT NULL CHECK(preferred_platform IN ('LinkedIn Post', 'Blog Article')),
+            is_active BOOLEAN DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
+            UNIQUE(account_id)
+        );
+
+        -- content_ideas table: Stores AI-generated content ideas
+        CREATE TABLE IF NOT EXISTS content_ideas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            account_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            summary TEXT NOT NULL,
+            talking_points TEXT NOT NULL, -- JSON array stored as text
+            generation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+            is_read BOOLEAN DEFAULT 0,
+            is_used BOOLEAN DEFAULT 0,
+            FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
+        );
     `);
 
     // TODO: For testing, seed the database with an initial owner if it's empty.

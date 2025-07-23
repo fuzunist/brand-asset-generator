@@ -12,6 +12,7 @@ const { generateSocialMediaKit, createZipStream } = require('./socialMediaKitGen
 const { generateDocument } = require('./documentGenerator');
 const { generateWebsiteReport } = require('./websiteReportGenerator');
 const AdKitGenerator = require('./adKitGenerator');
+const ThoughtLeadershipService = require('./thoughtLeadershipService');
 const setupDatabase = require('./database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -1820,12 +1821,226 @@ app.post('/api/ad-kit/generate', authMiddleware, async (req, res) => {
     }
 });
 
+// --- Thought Leadership Routes ---
+
+// Get or create thought leadership settings
+app.get('/api/thought-leadership/settings', authMiddleware, async (req, res) => {
+    try {
+        const settings = await db.get(
+            'SELECT * FROM thought_leadership_settings WHERE account_id = ?',
+            req.user.accountId
+        );
+        
+        if (!settings) {
+            return res.json({
+                hasSettings: false,
+                settings: null
+            });
+        }
+        
+        res.json({
+            hasSettings: true,
+            settings: {
+                industry: settings.industry,
+                targetAudience: settings.target_audience,
+                preferredPlatform: settings.preferred_platform,
+                isActive: settings.is_active
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching thought leadership settings:', error);
+        res.status(500).json({ message: 'Failed to fetch settings' });
+    }
+});
+
+// Update thought leadership settings
+app.post('/api/thought-leadership/settings', authMiddleware, async (req, res) => {
+    const { industry, targetAudience, preferredPlatform } = req.body;
+    
+    if (!industry || !targetAudience || !preferredPlatform) {
+        return res.status(400).json({ 
+            message: 'Please provide industry, target audience, and preferred platform' 
+        });
+    }
+    
+    if (!['LinkedIn Post', 'Blog Article'].includes(preferredPlatform)) {
+        return res.status(400).json({ 
+            message: 'Preferred platform must be either "LinkedIn Post" or "Blog Article"' 
+        });
+    }
+    
+    try {
+        // Check if settings already exist
+        const existing = await db.get(
+            'SELECT id FROM thought_leadership_settings WHERE account_id = ?',
+            req.user.accountId
+        );
+        
+        if (existing) {
+            // Update existing settings
+            await db.run(
+                `UPDATE thought_leadership_settings 
+                SET industry = ?, target_audience = ?, preferred_platform = ?, 
+                    updated_at = CURRENT_TIMESTAMP 
+                WHERE account_id = ?`,
+                [industry, targetAudience, preferredPlatform, req.user.accountId]
+            );
+        } else {
+            // Create new settings
+            await db.run(
+                `INSERT INTO thought_leadership_settings 
+                (account_id, industry, target_audience, preferred_platform) 
+                VALUES (?, ?, ?, ?)`,
+                [req.user.accountId, industry, targetAudience, preferredPlatform]
+            );
+        }
+        
+        res.json({ message: 'Settings saved successfully' });
+    } catch (error) {
+        console.error('Error saving thought leadership settings:', error);
+        res.status(500).json({ message: 'Failed to save settings' });
+    }
+});
+
+// Get content ideas
+app.get('/api/thought-leadership/ideas', authMiddleware, async (req, res) => {
+    try {
+        // First check if user has settings
+        const settings = await db.get(
+            'SELECT * FROM thought_leadership_settings WHERE account_id = ?',
+            req.user.accountId
+        );
+        
+        if (!settings) {
+            return res.json({
+                hasSettings: false,
+                ideas: []
+            });
+        }
+        
+        // Get the latest ideas
+        const ideas = await db.all(
+            `SELECT * FROM content_ideas 
+            WHERE account_id = ? 
+            ORDER BY generation_date DESC 
+            LIMIT 10`,
+            req.user.accountId
+        );
+        
+        // Parse the talking points JSON
+        const formattedIdeas = ideas.map(idea => ({
+            id: idea.id,
+            title: idea.title,
+            summary: idea.summary,
+            talkingPoints: JSON.parse(idea.talking_points),
+            generationDate: idea.generation_date,
+            isRead: idea.is_read,
+            isUsed: idea.is_used
+        }));
+        
+        res.json({
+            hasSettings: true,
+            ideas: formattedIdeas
+        });
+    } catch (error) {
+        console.error('Error fetching content ideas:', error);
+        res.status(500).json({ message: 'Failed to fetch content ideas' });
+    }
+});
+
+// Mark idea as read
+app.put('/api/thought-leadership/ideas/:id/read', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Verify the idea belongs to the user's account
+        const idea = await db.get(
+            'SELECT * FROM content_ideas WHERE id = ? AND account_id = ?',
+            [id, req.user.accountId]
+        );
+        
+        if (!idea) {
+            return res.status(404).json({ message: 'Content idea not found' });
+        }
+        
+        await db.run(
+            'UPDATE content_ideas SET is_read = 1 WHERE id = ?',
+            id
+        );
+        
+        res.json({ message: 'Marked as read' });
+    } catch (error) {
+        console.error('Error marking idea as read:', error);
+        res.status(500).json({ message: 'Failed to update idea' });
+    }
+});
+
+// Mark idea as used
+app.put('/api/thought-leadership/ideas/:id/used', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Verify the idea belongs to the user's account
+        const idea = await db.get(
+            'SELECT * FROM content_ideas WHERE id = ? AND account_id = ?',
+            [id, req.user.accountId]
+        );
+        
+        if (!idea) {
+            return res.status(404).json({ message: 'Content idea not found' });
+        }
+        
+        await db.run(
+            'UPDATE content_ideas SET is_used = 1 WHERE id = ?',
+            id
+        );
+        
+        res.json({ message: 'Marked as used' });
+    } catch (error) {
+        console.error('Error marking idea as used:', error);
+        res.status(500).json({ message: 'Failed to update idea' });
+    }
+});
+
+// Manually trigger content generation (for testing/demo)
+app.post('/api/thought-leadership/generate', authMiddleware, async (req, res) => {
+    try {
+        // Check if user has settings
+        const settings = await db.get(
+            'SELECT * FROM thought_leadership_settings WHERE account_id = ?',
+            req.user.accountId
+        );
+        
+        if (!settings) {
+            return res.status(400).json({ 
+                message: 'Please configure your thought leadership settings first' 
+            });
+        }
+        
+        // Trigger generation
+        await req.app.locals.thoughtLeadershipService.triggerManualGeneration(req.user.accountId);
+        
+        res.json({ message: 'Content generation started. Check back in a moment for new ideas.' });
+    } catch (error) {
+        console.error('Error triggering content generation:', error);
+        res.status(500).json({ message: 'Failed to generate content' });
+    }
+});
+
 app.get('/', (req, res) => {
     res.send('Hello from the server!');
 });
 
 async function main() {
     db = await setupDatabase();
+    
+    // Initialize Thought Leadership Service
+    const thoughtLeadershipService = new ThoughtLeadershipService(db, process.env.OPENAI_API_KEY);
+    thoughtLeadershipService.initializeCronJob();
+    
+    // Make service available to routes
+    app.locals.thoughtLeadershipService = thoughtLeadershipService;
+    
     app.listen(port, () => {
         console.log(`Server listening on port ${port}`);
     });
