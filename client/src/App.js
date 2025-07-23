@@ -18,6 +18,7 @@ import PressKitSettings from './components/PressKitSettings';
 import WebsiteReportGenerator from './components/WebsiteReportGenerator';
 import BrandConsistencyAuditor from './components/BrandConsistencyAuditor';
 import AdKitGenerator from './components/AdKitGenerator';
+import SentimentAnalysisDashboard from './components/SentimentAnalysisDashboard';
 
 // A wrapper for routes that require authentication
 /* const ProtectedRoute = ({ allowedRoles }) => {
@@ -140,6 +141,16 @@ const Layout = () => {
                                 Ad Kit Generator
                             </Link>
                             
+                            <Link 
+                                to="/sentiment-analysis" 
+                                className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                            >
+                                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Sentiment Analysis
+                            </Link>
+                            
                             {user.role === 'owner' && (
                                 <Link 
                                     to="/team" 
@@ -209,10 +220,11 @@ function App() {
                             <Route path="brand-consistency" element={<BrandConsistencyAuditor />} />
                             <Route path="website-audit" element={<WebsiteReportGenerator />} />
                             <Route path="press-kit" element={<PressKitSettings />} />
-                            <Route path="email-generator" element={<EmailTemplateGenerator />} />
-                            <Route path="document-generator" element={<DocumentGenerator />} />
-                            <Route path="ad-kit" element={<AdKitGenerator />} />
-                        {/* </Route> */}
+                                            <Route path="email-generator" element={<EmailTemplateGenerator />} />
+                <Route path="document-generator" element={<DocumentGenerator />} />
+                <Route path="ad-kit" element={<AdKitGenerator />} />
+                <Route path="sentiment-analysis" element={<SentimentAnalysisDashboard />} />
+                {/* </Route> */}
 
                         {/* Owner-only routes */}
                         {/* <Route element={<ProtectedRoute allowedRoles={['owner']} />}> */}
