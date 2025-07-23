@@ -1135,28 +1135,48 @@ app.post('/api/website-audit/generate', authMiddleware, async (req, res) => {
         return res.status(400).json({ message: 'Website URL is required.' });
     }
 
+    // Validate URL format
     try {
-        // The technical prompt mentions brand_identity_id, but the system uses accountId.
-        // We will pass the accountId and the db instance to the generator function.
+        const urlObj = new URL(url);
+        if (!['http:', 'https:'].includes(urlObj.protocol)) {
+            return res.status(400).json({ message: 'URL must use HTTP or HTTPS protocol.' });
+        }
+    } catch (urlError) {
+        return res.status(400).json({ message: 'Please provide a valid URL format.' });
+    }
+
+    try {
+        console.log(`Starting website audit for ${url} (User: ${accountId})`);
+        
         const pdfBuffer = await generateWebsiteReport(url, accountId, db);
         
-        // For now, the generator returns null. We will build the full implementation next.
-        // This structure allows us to confirm the endpoint is working.
         if (!pdfBuffer) {
-             return res.status(200).json({ message: `Request received for ${url}. PDF generation in progress.`});
+            return res.status(500).json({ message: 'Failed to generate website audit report. Please try again.' });
         }
         
         const domainName = new URL(url).hostname;
         const safeDomainName = domainName.replace(/[^a-z0-9]/gi, '_');
+        const timestamp = new Date().toISOString().slice(0, 10); // YYYY-MM-DD format
 
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename="Website_Audit_Report_${safeDomainName}.pdf"`);
+        res.setHeader('Content-Disposition', `attachment; filename="Website_Audit_${safeDomainName}_${timestamp}.pdf"`);
         
+        console.log(`Successfully generated website audit report for ${url}`);
         res.send(pdfBuffer);
 
     } catch (error) {
         console.error(`Error generating website report for ${url}:`, error);
-        res.status(500).json({ message: 'Server error while generating your website report.' });
+        
+        // Provide more specific error messages
+        if (error.message.includes('net::ERR_NAME_NOT_RESOLVED') || error.message.includes('ENOTFOUND')) {
+            return res.status(400).json({ message: 'Website not found. Please check the URL and try again.' });
+        } else if (error.message.includes('net::ERR_CONNECTION_REFUSED')) {
+            return res.status(400).json({ message: 'Cannot connect to the website. It may be down or blocking requests.' });
+        } else if (error.message.includes('Navigation timeout')) {
+            return res.status(400).json({ message: 'Website took too long to respond. Please try again later.' });
+        } else {
+            return res.status(500).json({ message: 'Server error while generating your website report. Please try again.' });
+        }
     }
 });
 
