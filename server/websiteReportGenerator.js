@@ -196,7 +196,14 @@ async function runPuppeteerTasks(targetUrl, primaryColor) {
         await page.setDefaultTimeout(30000);
         
         // Emulate mobile device
-        await page.emulate(puppeteer.devices['iPhone X']);
+        await page.setViewport({
+            width: 375,
+            height: 812,
+            deviceScaleFactor: 3,
+            isMobile: true,
+            hasTouch: true,
+            isLandscape: false
+        });
         
         // Add error handling for page navigation
         try {
