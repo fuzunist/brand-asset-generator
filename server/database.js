@@ -66,6 +66,8 @@ async function setupDatabase() {
             primary_color TEXT,
             secondary_color TEXT,
             accent_color TEXT,
+            headline_font TEXT DEFAULT 'Inter',
+            body_font TEXT DEFAULT 'Inter',
             press_kit_slug TEXT UNIQUE,
             press_contact_email TEXT,
             logo_url TEXT,

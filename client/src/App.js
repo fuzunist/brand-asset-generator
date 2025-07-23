@@ -16,6 +16,7 @@ import TeamManagementPage from './components/TeamManagementPage';
 import PressKitPage from './components/PressKitPage';
 import PressKitSettings from './components/PressKitSettings';
 import WebsiteReportGenerator from './components/WebsiteReportGenerator';
+import BrandConsistencyAuditor from './components/BrandConsistencyAuditor';
 
 // A wrapper for routes that require authentication
 /* const ProtectedRoute = ({ allowedRoles }) => {
@@ -76,6 +77,16 @@ const Layout = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z" />
                                 </svg>
                                 Dashboard
+                            </Link>
+                            
+                            <Link 
+                                to="/brand-consistency" 
+                                className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                            >
+                                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                </svg>
+                                Brand Consistency
                             </Link>
                             
                             <Link 
@@ -184,6 +195,7 @@ function App() {
                         {/* <Route element={<ProtectedRoute />}> */}
                             {/* Dashboard is the default protected route */}
                             <Route index element={<Dashboard />} />
+                            <Route path="brand-consistency" element={<BrandConsistencyAuditor />} />
                             <Route path="website-audit" element={<WebsiteReportGenerator />} />
                             <Route path="press-kit" element={<PressKitSettings />} />
                             <Route path="email-generator" element={<EmailTemplateGenerator />} />

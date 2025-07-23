@@ -1726,6 +1726,209 @@ app.get('/api/email-templates/saved', authMiddleware, async (req, res) => {
     }
 });
 
+app.post('/api/audits/consistency', authMiddleware, async (req, res) => {
+    const { url, brand_identity_id } = req.body;
+    const { accountId } = req.user;
+
+    if (!url) {
+        return res.status(400).json({ error: 'URL is required' });
+    }
+
+    // Validate URL format
+    try {
+        new URL(url);
+    } catch (e) {
+        return res.status(400).json({ error: 'Invalid URL format' });
+    }
+
+    let browser;
+    try {
+        // Fetch brand identity from database
+        const brandIdentity = await db.get(
+            'SELECT * FROM brand_identities WHERE account_id = ? AND id = ?',
+            accountId,
+            brand_identity_id || 1 // Default to first brand identity if not specified
+        );
+
+        if (!brandIdentity) {
+            return res.status(404).json({ error: 'Brand identity not found' });
+        }
+
+        // Parse approved colors and fonts
+        const approvedColors = [
+            brandIdentity.primary_color,
+            brandIdentity.secondary_color,
+            brandIdentity.accent_color
+        ].filter(Boolean).map(color => color.toLowerCase());
+
+        // Get approved fonts from the database
+        const approvedFonts = [
+            brandIdentity.headline_font || 'Inter',
+            brandIdentity.body_font || 'Inter',
+            'system-ui' // Common fallback
+        ].filter(Boolean).map(f => f.toLowerCase());
+
+        // Launch headless browser
+        browser = await puppeteer.launch({
+            headless: 'new',
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            timeout: 30000
+        });
+
+        const page = await browser.newPage();
+        
+        // Set viewport and user agent
+        await page.setViewport({ width: 1920, height: 1080 });
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+
+        // Navigate to the URL
+        await page.goto(url, {
+            waitUntil: 'networkidle0',
+            timeout: 30000
+        });
+
+        // Wait a bit for any dynamic content
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Extract colors and fonts from the page
+        const styleData = await page.evaluate(() => {
+            const colors = new Set();
+            const fonts = new Set();
+            
+            // Helper function to convert RGB to HEX
+            function rgbToHex(rgb) {
+                const match = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+                if (!match) return rgb;
+                
+                const hex = (x) => {
+                    const h = parseInt(x).toString(16);
+                    return h.length === 1 ? '0' + h : h;
+                };
+                
+                return '#' + hex(match[1]) + hex(match[2]) + hex(match[3]);
+            }
+
+            // Get all elements
+            const elements = document.querySelectorAll('body *:not(script):not(style):not(noscript)');
+            
+            for (const el of elements) {
+                try {
+                    const style = window.getComputedStyle(el);
+                    
+                    // Skip hidden elements
+                    if (style.visibility === 'hidden' || style.display === 'none' || style.opacity === '0') {
+                        continue;
+                    }
+
+                    // Extract colors
+                    ['color', 'backgroundColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor'].forEach(prop => {
+                        const value = style[prop];
+                        if (value && value !== 'transparent' && value !== 'rgba(0, 0, 0, 0)' && value !== 'rgb(0, 0, 0, 0)') {
+                            colors.add(value.startsWith('rgb') ? rgbToHex(value).toLowerCase() : value.toLowerCase());
+                        }
+                    });
+
+                    // Extract fonts
+                    const fontFamily = style.fontFamily;
+                    if (fontFamily) {
+                        // Clean up font family string
+                        fontFamily.split(',').forEach(font => {
+                            const cleanFont = font.trim().replace(/['"]/g, '').toLowerCase();
+                            if (cleanFont && !cleanFont.includes('var(') && cleanFont !== 'inherit') {
+                                fonts.add(cleanFont);
+                            }
+                        });
+                    }
+                } catch (e) {
+                    // Skip any problematic elements
+                }
+            }
+
+            return {
+                colors: Array.from(colors),
+                fonts: Array.from(fonts)
+            };
+        });
+
+        // Analyze results
+        const foundColors = styleData.colors || [];
+        const foundFonts = styleData.fonts || [];
+
+        // Categorize colors
+        const approvedColorsFound = [];
+        const unapprovedColors = [];
+
+        foundColors.forEach(color => {
+            if (approvedColors.includes(color)) {
+                approvedColorsFound.push(color);
+            } else {
+                // Check if it's a common neutral color (white, black, grays)
+                const neutralColors = ['#ffffff', '#000000', '#f9fafb', '#f3f4f6', '#e5e7eb', '#d1d5db', '#9ca3af', '#6b7280', '#4b5563', '#374151', '#1f2937', '#111827'];
+                if (!neutralColors.includes(color)) {
+                    unapprovedColors.push(color);
+                }
+            }
+        });
+
+        // Categorize fonts
+        const approvedFontsFound = [];
+        const unapprovedFonts = [];
+
+        foundFonts.forEach(font => {
+            if (approvedFonts.some(approved => font.includes(approved))) {
+                approvedFontsFound.push(font);
+            } else {
+                // Filter out generic fallback fonts
+                const genericFonts = ['serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', '-apple-system', 'blinkmacsystemfont'];
+                if (!genericFonts.includes(font)) {
+                    unapprovedFonts.push(font);
+                }
+            }
+        });
+
+        // Calculate consistency score
+        const totalColors = approvedColorsFound.length + unapprovedColors.length;
+        const totalFonts = approvedFontsFound.length + unapprovedFonts.length;
+        const totalItems = totalColors + totalFonts;
+        const approvedItems = approvedColorsFound.length + approvedFontsFound.length;
+        const score = totalItems > 0 ? Math.round((approvedItems / totalItems) * 100) : 100;
+
+        // Prepare response
+        const response = {
+            auditUrl: url,
+            results: {
+                colors: {
+                    approved: [...new Set(approvedColorsFound)], // Remove duplicates
+                    unapproved: [...new Set(unapprovedColors)]
+                },
+                fonts: {
+                    approved: [...new Set(approvedFontsFound)],
+                    unapproved: [...new Set(unapprovedFonts)]
+                }
+            },
+            score,
+            brandIdentity: {
+                name: brandIdentity.brand_name,
+                approvedColors: approvedColors,
+                approvedFonts: approvedFonts
+            }
+        };
+
+        res.json(response);
+
+    } catch (error) {
+        console.error('Brand consistency audit error:', error);
+        res.status(500).json({ 
+            error: 'Failed to audit website', 
+            details: error.message 
+        });
+    } finally {
+        if (browser) {
+            await browser.close();
+        }
+    }
+});
+
 app.get('/', (req, res) => {
     res.send('Hello from the server!');
 });
