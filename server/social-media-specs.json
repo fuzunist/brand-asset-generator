@@ -1,0 +1,21 @@
+{
+  "facebook": {
+    "profile": { "width": 360, "height": 360, "format": "png" },
+    "cover": { "width": 851, "height": 315, "format": "jpg" }
+  },
+  "instagram": {
+    "profile": { "width": 320, "height": 320, "format": "png" }
+  },
+  "twitter": {
+    "profile": { "width": 400, "height": 400, "format": "png" },
+    "cover": { "width": 1500, "height": 500, "format": "jpg" }
+  },
+  "linkedin": {
+    "profile": { "width": 400, "height": 400, "format": "png" },
+    "cover": { "width": 1584, "height": 396, "format": "jpg" }
+  },
+  "youtube": {
+    "profile": { "width": 800, "height": 800, "format": "png" },
+    "cover": { "width": 2560, "height": 1440, "format": "jpg" }
+  }
+} 

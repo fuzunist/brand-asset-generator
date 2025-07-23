@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Business Card - Back Side</title>
+    <style>
+        body {
+            width: 3.5in;
+            height: 2in;
+            margin: 0;
+            padding: 20px;
+            font-family: '{{fontBody}}';
+            background-color: #fff;
+            color: {{textColor}};
+        }
+        .card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            position: relative;
+        }
+        .services-section {
+            margin-bottom: 15px;
+        }
+        .services-title, .info-title {
+            font-family: '{{fontHeadline}}';
+            color: {{primaryColor}};
+            margin: 0 0 8px 0;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .services-list, .info-list {
+            font-size: 0.75em;
+            line-height: 1.4;
+            white-space: pre-line;
+        }
+        .logo-watermark {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            opacity: 0.6;
+        }
+        .logo-watermark img {
+            max-width: 40px;
+            max-height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="services-section">
+            <h4 class="services-title">Services</h4>
+            <div class="services-list">{{services}}</div>
+        </div>
+        
+        <div class="info-section">
+            <h4 class="info-title">Additional Info</h4>
+            <div class="info-list">{{additionalInfo}}</div>
+        </div>
+        
+        <div class="logo-watermark">
+            <img src="{{logoUrl}}" alt="logo" />
+        </div>
+    </div>
+</body>
+</html> 

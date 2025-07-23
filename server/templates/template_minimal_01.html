@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Business Card</title>
+    <style>
+        body {
+            width: 3.5in;
+            height: 2in;
+            margin: 0;
+            padding: 20px;
+            font-family: '{{fontBody}}';
+            background-color: #fff;
+            color: {{textColor}};
+        }
+        .card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        .logo {
+            max-width: 100px;
+            max-height: 50px;
+            margin-bottom: 10px;
+        }
+        .name {
+            font-family: '{{fontHeadline}}';
+            color: {{primaryColor}};
+            margin: 0;
+            font-size: 1.2em;
+        }
+        .title {
+            margin: 2px 0;
+        }
+        .contact-info {
+            margin-top: 10px;
+            font-size: 0.8em;
+        }
+        .contact-info p {
+            margin: 2px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img src="{{logoUrl}}" alt="logo" class="logo" />
+        <h3 class="name">{{fullName}}</h3>
+        <p class="title">{{title}}</p>
+        <div class="contact-info">
+            <p>{{phone}}</p>
+            <p>{{email}}</p>
+            <p>{{website}}</p>
+        </div>
+    </div>
+</body>
+</html> 

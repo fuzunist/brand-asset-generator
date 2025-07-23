@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Audit Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            color: #333;
+        }
+        h1 {
+            color: #0056b3;
+        }
+        .report-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .score {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        .screenshot {
+            max-width: 100%;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Website Audit Report for {{URL}}</h1>
+
+    <div class="report-section">
+        <h2>Performance Scores</h2>
+        <p>Performance: <span class="score">{{PERFORMANCE_SCORE}}</span></p>
+        <p>Accessibility: <span class="score">{{ACCESSIBILITY_SCORE}}</span></p>
+        <p>SEO: <span class="score">{{SEO_SCORE}}</span></p>
+    </div>
+
+    <div class="report-section">
+        <h2>Mobile View</h2>
+        <img src="{{MOBILE_SCREENSHOT_URL}}" alt="Mobile Screenshot" class="screenshot">
+    </div>
+
+    <div class="report-section">
+        <h2>Brand Consistency</h2>
+        <p>Primary brand color used: {{PRIMARY_COLOR_USED}}</p>
+    </div>
+
+</body>
+</html> 

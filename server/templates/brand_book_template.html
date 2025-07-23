@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Guidelines - {{brandName}}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: white;
+        }
+        
+        .page {
+            page-break-after: always;
+            padding: 60px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .page:last-child {
+            page-break-after: auto;
+        }
+        
+        /* Cover Page */
+        .cover-page {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0.2) 100%);
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .cover-logo {
+            max-width: 400px;
+            max-height: 300px;
+            margin-bottom: 40px;
+            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.1));
+        }
+        
+        .cover-title {
+            font-size: 4rem;
+            font-weight: 800;
+            color: {{primaryColor}};
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+        
+        .cover-subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: #6b7280;
+            margin-bottom: 40px;
+        }
+        
+        .cover-date {
+            font-size: 1rem;
+            color: #9ca3af;
+            font-weight: 400;
+        }
+        
+        /* Section Headers */
+        .section-header {
+            margin-bottom: 50px;
+        }
+        
+        .section-number {
+            font-size: 1rem;
+            font-weight: 600;
+            color: {{primaryColor}};
+            margin-bottom: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        
+        .section-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 20px;
+            letter-spacing: -0.025em;
+        }
+        
+        .section-description {
+            font-size: 1.125rem;
+            color: #6b7280;
+            max-width: 600px;
+            line-height: 1.7;
+        }
+        
+        /* Logo Section */
+        .logo-showcase {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .logo-item {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .logo-item img {
+            max-width: 200px;
+            max-height: 150px;
+            margin-bottom: 20px;
+        }
+        
+        .logo-item h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+        
+        .logo-item p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        /* Usage Guidelines */
+        .usage-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .usage-item {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .usage-item h4 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 20px;
+        }
+        
+        .usage-item img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        /* Color Palette */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .color-swatch {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .color-preview {
+            height: 120px;
+            background: {{primaryColor}};
+            position: relative;
+        }
+        
+        .color-info {
+            padding: 20px;
+        }
+        
+        .color-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 15px;
+        }
+        
+        .color-values {
+            display: grid;
+            gap: 8px;
+        }
+        
+        .color-value {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+        }
+        
+        .color-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .color-code {
+            color: #374151;
+            font-family: 'SF Mono', Monaco, 'Consolas', monospace;
+            font-weight: 600;
+        }
+        
+        /* Typography */
+        .typography-showcase {
+            margin-bottom: 50px;
+        }
+        
+        .font-specimen {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .font-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: {{primaryColor}};
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .font-example-large {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+        
+        .font-example-medium {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 20px;
+        }
+        
+        .font-example-body {
+            font-size: 1rem;
+            color: #6b7280;
+            line-height: 1.7;
+        }
+        
+        /* Brand Voice */
+        .brand-voice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .voice-item {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .voice-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(79, 70, 229, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .voice-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 15px;
+        }
+        
+        .voice-description {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+        
+        /* Footer */
+        .page-footer {
+            position: absolute;
+            bottom: 30px;
+            left: 60px;
+            right: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .footer-logo {
+            height: 30px;
+        }
+        
+        .footer-text {
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+        
+        /* Don'ts Section */
+        .donts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .dont-item {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            border: 2px solid #fecaca;
+            position: relative;
+        }
+        
+        .dont-item::before {
+            content: "✗";
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: #ef4444;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .dont-item img {
+            max-width: 120px;
+            max-height: 120px;
+            margin-bottom: 20px;
+        }
+        
+        .dont-item h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+        
+        .dont-item p {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        /* Application Examples */
+        .application-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .application-item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .application-image {
+            height: 200px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .application-info {
+            padding: 20px;
+        }
+        
+        .application-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        
+        .application-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <!-- Cover Page -->
+    <div class="page cover-page">
+        <img src="{{LOGO_URL}}" alt="{{brandName}} Logo" class="cover-logo">
+        <h1 class="cover-title">{{brandName}}</h1>
+        <p class="cover-subtitle">Brand Guidelines</p>
+        <p class="cover-date">{{generationDate}}</p>
+    </div>
+
+    <!-- Introduction -->
+    <div class="page">
+        <div class="section-header">
+            <div class="section-number">01</div>
+            <h2 class="section-title">Introduction</h2>
+            <p class="section-description">
+                This brand guide serves as a comprehensive reference for maintaining consistent 
+                visual identity across all touchpoints. It contains guidelines for logo usage, 
+                color palette, typography, and brand voice to ensure cohesive brand representation.
+            </p>
+        </div>
+        
+        <div class="brand-voice-grid">
+            <div class="voice-item">
+                <div class="voice-icon">🎯</div>
+                <h3 class="voice-title">Purpose</h3>
+                <p class="voice-description">
+                    To create a unified brand experience that resonates with our audience 
+                    and communicates our values effectively.
+                </p>
+            </div>
+            <div class="voice-item">
+                <div class="voice-icon">✨</div>
+                <h3 class="voice-title">Vision</h3>
+                <p class="voice-description">
+                    Building a recognizable and trustworthy brand that stands out 
+                    in the marketplace through consistent visual communication.
+                </p>
+            </div>
+            <div class="voice-item">
+                <div class="voice-icon">💎</div>
+                <h3 class="voice-title">Values</h3>
+                <p class="voice-description">
+                    Quality, innovation, and authenticity guide every aspect 
+                    of our brand expression and customer interactions.
+                </p>
+            </div>
+        </div>
+        
+        <div class="page-footer">
+            <img src="{{LOGO_URL}}" alt="Logo" class="footer-logo">
+            <span class="footer-text">{{brandName}} Brand Guidelines</span>
+        </div>
+    </div>
+
+    <!-- Logo Usage -->
+    <div class="page">
+        <div class="section-header">
+            <div class="section-number">02</div>
+            <h2 class="section-title">Logo Usage</h2>
+            <p class="section-description">
+                Our logo is the cornerstone of our visual identity. Proper usage ensures 
+                brand recognition and maintains professional appearance across all applications.
+            </p>
+        </div>
+        
+        <div class="logo-showcase">
+            <div class="logo-item">
+                <img src="{{LOGO_URL}}" alt="Primary Logo">
+                <h3>Primary Logo</h3>
+                <p>Use this version whenever possible for maximum brand impact</p>
+            </div>
+            <div class="logo-item">
+                <img src="{{LOGO_URL}}" alt="Secondary Logo" style="filter: grayscale(100%);">
+                <h3>Monochrome Version</h3>
+                <p>Use when color reproduction is limited or on colored backgrounds</p>
+            </div>
+        </div>
+        
+        <div class="usage-grid">
+            <div class="usage-item">
+                <h4>Clear Space</h4>
+                <img src="data:image/png;base64,{{CLEARSPACE_IMG_BASE64}}" alt="Logo Clearspace">
+                <p>Maintain adequate clear space around the logo for optimal visual impact</p>
+            </div>
+            <div class="usage-item">
+                <h4>Minimum Size</h4>
+                <img src="data:image/png;base64,{{MIN_SIZE_IMG_BASE64}}" alt="Logo Minimum Size">
+                <p>Never reproduce the logo smaller than 32px in digital applications</p>
+            </div>
+        </div>
+        
+        <div class="page-footer">
+            <img src="{{LOGO_URL}}" alt="Logo" class="footer-logo">
+            <span class="footer-text">{{brandName}} Brand Guidelines</span>
+        </div>
+    </div>
+
+    <!-- Logo Don'ts -->
+    <div class="page">
+        <div class="section-header">
+            <div class="section-number">03</div>
+            <h2 class="section-title">Logo Don'ts</h2>
+            <p class="section-description">
+                To maintain brand integrity, avoid these common mistakes when using our logo.
+                These guidelines ensure consistent brand representation.
+            </p>
+        </div>
+        
+        <div class="donts-grid">
+            <div class="dont-item">
+                <img src="data:image/png;base64,{{LOGO_DONTS_IMG_BASE64}}" alt="Logo Don'ts">
+            </div>
+        </div>
+        
+        <div class="page-footer">
+            <img src="{{LOGO_URL}}" alt="Logo" class="footer-logo">
+            <span class="footer-text">{{brandName}} Brand Guidelines</span>
+        </div>
+    </div>
+
+    <!-- Color Palette -->
+    <div class="page">
+        <div class="section-header">
+            <div class="section-number">04</div>
+            <h2 class="section-title">Color Palette</h2>
+            <p class="section-description">
+                Our carefully selected color palette reflects our brand personality and 
+                ensures consistent visual communication across all brand touchpoints.
+            </p>
+        </div>
+        
+        <div class="color-palette">
+            <div class="color-swatch">
+                <div class="color-preview" style="background: {{primaryColor}};"></div>
+                <div class="color-info">
+                    <h3 class="color-name">Primary Color</h3>
+                    <div class="color-values">
+                        <div class="color-value">
+                            <span class="color-label">HEX</span>
+                            <span class="color-code">{{primaryColor}}</span>
+                        </div>
+                        <div class="color-value">
+                            <span class="color-label">RGB</span>
+                            <span class="color-code">{{primaryRGB}}</span>
+                        </div>
+                        <div class="color-value">
+                            <span class="color-label">CMYK</span>
+                            <span class="color-code">{{primaryCMYK}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="color-swatch">
+                <div class="color-preview" style="background: {{secondaryColor}};"></div>
+                <div class="color-info">
+                    <h3 class="color-name">Secondary Color</h3>
+                    <div class="color-values">
+                        <div class="color-value">
+                            <span class="color-label">HEX</span>
+                            <span class="color-code">{{secondaryColor}}</span>
+                        </div>
+                        <div class="color-value">
+                            <span class="color-label">RGB</span>
+                            <span class="color-code">{{secondaryRGB}}</span>
+                        </div>
+                        <div class="color-value">
+                            <span class="color-label">CMYK</span>
+                            <span class="color-code">{{secondaryCMYK}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px;">
+            <img src="data:image/png;base64,{{COLORS_IMG_BASE64}}" alt="Complete Color Palette" style="max-width: 100%; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        </div>
+        
+        <div class="page-footer">
+            <img src="{{LOGO_URL}}" alt="Logo" class="footer-logo">
+            <span class="footer-text">{{brandName}} Brand Guidelines</span>
+        </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="page">
+        <div class="section-header">
+            <div class="section-number">05</div>
+            <h2 class="section-title">Typography</h2>
+            <p class="section-description">
+                Typography plays a crucial role in our brand communication. These font choices 
+                enhance readability and reinforce our brand personality.
+            </p>
+        </div>
+        
+        <div class="typography-showcase">
+            <div class="font-specimen">
+                <div class="font-name">{{headlineFont}} - Headlines & Titles</div>
+                <div class="font-example-large" style="font-family: '{{headlineFont}}', sans-serif;">
+                    The quick brown fox jumps
+                </div>
+                <div class="font-example-medium" style="font-family: '{{headlineFont}}', sans-serif;">
+                    Used for main headlines and section titles
+                </div>
+            </div>
+            
+            <div class="font-specimen">
+                <div class="font-name">{{bodyFont}} - Body Text</div>
+                <div class="font-example-body" style="font-family: '{{bodyFont}}', sans-serif;">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor 
+                    incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud 
+                    exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute 
+                    irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px;">
+            <img src="data:image/png;base64,{{TYPOGRAPHY_IMG_BASE64}}" alt="Typography Examples" style="max-width: 100%; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        </div>
+        
+        <div class="page-footer">
+            <img src="{{LOGO_URL}}" alt="Logo" class="footer-logo">
+            <span class="footer-text">{{brandName}} Brand Guidelines</span>
+        </div>
+    </div>
+
+    <!-- Brand Applications -->
+    <div class="page">
+        <div class="section-header">
+            <div class="section-number">06</div>
+            <h2 class="section-title">Brand Applications</h2>
+            <p class="section-description">
+                Examples of how our brand elements work together across various applications 
+                and touchpoints to create a cohesive brand experience.
+            </p>
+        </div>
+        
+        <div class="application-grid">
+            <div class="application-item">
+                <div class="application-image">Business Cards</div>
+                <div class="application-info">
+                    <h3 class="application-title">Business Cards</h3>
+                    <p class="application-description">Professional networking materials</p>
+                </div>
+            </div>
+            <div class="application-item">
+                <div class="application-image">Letterhead</div>
+                <div class="application-info">
+                    <h3 class="application-title">Letterhead</h3>
+                    <p class="application-description">Official correspondence template</p>
+                </div>
+            </div>
+            <div class="application-item">
+                <div class="application-image">Email Signature</div>
+                <div class="application-info">
+                    <h3 class="application-title">Email Signature</h3>
+                    <p class="application-description">Digital communication footer</p>
+                </div>
+            </div>
+            <div class="application-item">
+                <div class="application-image">Social Media</div>
+                <div class="application-info">
+                    <h3 class="application-title">Social Media</h3>
+                    <p class="application-description">Platform-specific brand assets</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-footer">
+            <img src="{{LOGO_URL}}" alt="Logo" class="footer-logo">
+            <span class="footer-text">{{brandName}} Brand Guidelines</span>
+        </div>
+    </div>
+
+    <!-- Contact & Thank You -->
+    <div class="page">
+        <div class="section-header">
+            <div class="section-number">07</div>
+            <h2 class="section-title">Thank You</h2>
+            <p class="section-description">
+                Thank you for taking the time to review our brand guidelines. 
+                Consistent application of these standards will help build a strong, 
+                recognizable brand presence.
+            </p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 100px;">
+            <img src="{{LOGO_URL}}" alt="{{brandName}} Logo" style="max-width: 300px; margin-bottom: 40px;">
+            <h3 style="font-size: 2rem; font-weight: 600; color: {{primaryColor}}; margin-bottom: 20px;">
+                {{brandName}}
+            </h3>
+            <p style="font-size: 1.125rem; color: #6b7280;">
+                Building brands that matter
+            </p>
+        </div>
+        
+        <div class="page-footer">
+            <img src="{{LOGO_URL}}" alt="Logo" class="footer-logo">
+            <span class="footer-text">{{brandName}} Brand Guidelines</span>
+        </div>
+    </div>
+</body>
+</html> 

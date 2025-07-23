@@ -1,0 +1,37 @@
+# Dependencies
+/node_modules
+/client/node_modules
+/server/node_modules
+
+# Production
+/build
+/client/build
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Server specific
+/server/brandos.db
+/server/generated/
+/server/public/signatures/
+/server/uploads/
+/server/TestBrandGuide.pdf
+/server/test_social_kit.zip
+/server.log 
