@@ -88,6 +88,35 @@ async function setupDatabase() {
             FOREIGN KEY (brand_identity_id) REFERENCES brand_identities(id) ON DELETE CASCADE
         );
 
+        -- brand_mentions table: Stores social media mentions and their sentiment analysis
+        CREATE TABLE IF NOT EXISTS brand_mentions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            brand_identity_id INTEGER NOT NULL,
+            source TEXT NOT NULL CHECK(source IN ('twitter')),
+            source_id TEXT NOT NULL,
+            content TEXT NOT NULL,
+            author TEXT NOT NULL,
+            source_url TEXT NOT NULL,
+            sentiment TEXT NOT NULL CHECK(sentiment IN ('positive', 'negative', 'neutral')),
+            sentiment_score REAL NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (brand_identity_id) REFERENCES brand_identities(id) ON DELETE CASCADE,
+            UNIQUE(source, source_id) -- Prevent duplicate mentions from the same source
+        );
+
+        -- sentiment_tracking_config table: Stores configuration for sentiment tracking
+        CREATE TABLE IF NOT EXISTS sentiment_tracking_config (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            brand_identity_id INTEGER NOT NULL,
+            tracking_enabled BOOLEAN DEFAULT 1,
+            keywords TEXT NOT NULL, -- JSON array of keywords to track
+            last_fetch_at DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (brand_identity_id) REFERENCES brand_identities(id) ON DELETE CASCADE,
+            UNIQUE(brand_identity_id)
+        );
+
         -- thought_leadership_settings table: Stores user preferences for content generation
         CREATE TABLE IF NOT EXISTS thought_leadership_settings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

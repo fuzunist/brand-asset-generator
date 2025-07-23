@@ -5,13 +5,15 @@
   "scripts": {
     "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test:brandbook": "node test_brand_book.js"
+    "test:brandbook": "node test_brand_book.js",
+    "mock:sentiment": "node sentimentMockData.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google-cloud/language": "^7.2.0",
     "archiver": "^7.0.1",
     "bcryptjs": "^2.4.3",
     "color-convert": "^2.0.1",
@@ -26,7 +28,8 @@
     "puppeteer": "^24.11.1",
     "sharp": "^0.34.2",
     "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "twitter-api-v2": "^1.24.0"
   },
   "devDependencies": {
     "@types/color-convert": "^2.0.3",

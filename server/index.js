@@ -17,6 +17,8 @@ const setupDatabase = require('./database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { getSentimentSummary, getRecentMentions } = require('./sentimentAnalysisService');
+const { scheduleSentimentAnalysis } = require('./sentimentScheduler');
 
 const app = express();
 const port = 3001;
@@ -2027,6 +2029,125 @@ app.post('/api/thought-leadership/generate', authMiddleware, async (req, res) =>
     }
 });
 
+// --- Sentiment Analysis Routes ---
+
+// Get sentiment tracking configuration
+app.get('/api/sentiment/config', authMiddleware, async (req, res) => {
+    try {
+        const brandIdentity = await db.get(
+            `SELECT bi.id, bi.brand_name, stc.keywords, stc.tracking_enabled, stc.last_fetch_at
+             FROM brand_identities bi
+             LEFT JOIN sentiment_tracking_config stc ON bi.id = stc.brand_identity_id
+             WHERE bi.account_id = ?`,
+            [req.user.accountId]
+        );
+
+        if (!brandIdentity) {
+            return res.status(404).json({ error: 'Brand identity not found' });
+        }
+
+        res.json({
+            brandIdentityId: brandIdentity.id,
+            brandName: brandIdentity.brand_name,
+            keywords: brandIdentity.keywords ? JSON.parse(brandIdentity.keywords) : [brandIdentity.brand_name],
+            trackingEnabled: brandIdentity.tracking_enabled !== null ? brandIdentity.tracking_enabled : false,
+            lastFetchAt: brandIdentity.last_fetch_at
+        });
+    } catch (error) {
+        console.error('Error fetching sentiment config:', error);
+        res.status(500).json({ error: 'Failed to fetch sentiment configuration' });
+    }
+});
+
+// Update sentiment tracking configuration
+app.post('/api/sentiment/config', authMiddleware, rbacMiddleware(['owner']), async (req, res) => {
+    try {
+        const { keywords, trackingEnabled } = req.body;
+        
+        const brandIdentity = await db.get(
+            'SELECT id FROM brand_identities WHERE account_id = ?',
+            [req.user.accountId]
+        );
+
+        if (!brandIdentity) {
+            return res.status(404).json({ error: 'Brand identity not found' });
+        }
+
+        // Check if config exists
+        const existingConfig = await db.get(
+            'SELECT id FROM sentiment_tracking_config WHERE brand_identity_id = ?',
+            [brandIdentity.id]
+        );
+
+        if (existingConfig) {
+            // Update existing config
+            await db.run(
+                `UPDATE sentiment_tracking_config 
+                 SET keywords = ?, tracking_enabled = ?, updated_at = CURRENT_TIMESTAMP
+                 WHERE brand_identity_id = ?`,
+                [JSON.stringify(keywords), trackingEnabled ? 1 : 0, brandIdentity.id]
+            );
+        } else {
+            // Create new config
+            await db.run(
+                `INSERT INTO sentiment_tracking_config (brand_identity_id, keywords, tracking_enabled)
+                 VALUES (?, ?, ?)`,
+                [brandIdentity.id, JSON.stringify(keywords), trackingEnabled ? 1 : 0]
+            );
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error updating sentiment config:', error);
+        res.status(500).json({ error: 'Failed to update sentiment configuration' });
+    }
+});
+
+// Get sentiment summary for the dashboard
+app.get('/api/sentiment/summary', authMiddleware, async (req, res) => {
+    try {
+        const days = parseInt(req.query.days) || 7;
+        
+        const brandIdentity = await db.get(
+            'SELECT id FROM brand_identities WHERE account_id = ?',
+            [req.user.accountId]
+        );
+
+        if (!brandIdentity) {
+            return res.status(404).json({ error: 'Brand identity not found' });
+        }
+
+        const summary = await getSentimentSummary(brandIdentity.id, days);
+        res.json(summary);
+    } catch (error) {
+        console.error('Error fetching sentiment summary:', error);
+        res.status(500).json({ error: 'Failed to fetch sentiment summary' });
+    }
+});
+
+// Get recent mentions feed
+app.get('/api/sentiment/feed', authMiddleware, async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 20;
+        const offset = parseInt(req.query.offset) || 0;
+        
+        const brandIdentity = await db.get(
+            'SELECT id FROM brand_identities WHERE account_id = ?',
+            [req.user.accountId]
+        );
+
+        if (!brandIdentity) {
+            return res.status(404).json({ error: 'Brand identity not found' });
+        }
+
+        const mentions = await getRecentMentions(brandIdentity.id, limit, offset);
+        res.json(mentions);
+    } catch (error) {
+        console.error('Error fetching mentions feed:', error);
+        res.status(500).json({ error: 'Failed to fetch mentions feed' });
+    }
+});
+
 app.get('/', (req, res) => {
     res.send('Hello from the server!');
 });
@@ -2040,6 +2161,9 @@ async function main() {
     
     // Make service available to routes
     app.locals.thoughtLeadershipService = thoughtLeadershipService;
+    
+    // Start the sentiment analysis scheduler
+    scheduleSentimentAnalysis(db);
     
     app.listen(port, () => {
         console.log(`Server listening on port ${port}`);
