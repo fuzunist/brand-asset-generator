@@ -1,0 +1,280 @@
+{
+  "holidays": [
+    {
+      "date": "01-04",
+      "name": "World Braille Day",
+      "tags": ["education", "accessibility", "awareness"],
+      "description": "Celebrates the birthday of Louis Braille and raises awareness about accessibility"
+    },
+    {
+      "date": "01-15",
+      "name": "National Hat Day",
+      "tags": ["fashion", "retail", "fun"],
+      "description": "A fun day to showcase different hat styles and fashion"
+    },
+    {
+      "date": "01-21",
+      "name": "National Hug Day",
+      "tags": ["wellness", "relationships", "fun"],
+      "description": "Encourages people to hug family and friends more often"
+    },
+    {
+      "date": "02-09",
+      "name": "National Pizza Day",
+      "tags": ["food", "restaurant", "fun"],
+      "description": "Celebrates one of America's favorite foods"
+    },
+    {
+      "date": "02-14",
+      "name": "Valentine's Day",
+      "tags": ["romance", "retail", "restaurant", "gift"],
+      "description": "Day of love and romance"
+    },
+    {
+      "date": "03-08",
+      "name": "International Women's Day",
+      "tags": ["awareness", "empowerment", "social"],
+      "description": "Celebrates women's achievements and raises awareness about equality"
+    },
+    {
+      "date": "03-20",
+      "name": "International Day of Happiness",
+      "tags": ["wellness", "mental-health", "positive"],
+      "description": "Promotes the importance of happiness in people's lives"
+    },
+    {
+      "date": "03-21",
+      "name": "World Poetry Day",
+      "tags": ["arts", "culture", "education"],
+      "description": "Celebrates poetry and its contribution to cultural diversity"
+    },
+    {
+      "date": "04-07",
+      "name": "World Health Day",
+      "tags": ["health", "wellness", "awareness"],
+      "description": "Draws attention to global health issues"
+    },
+    {
+      "date": "04-22",
+      "name": "Earth Day",
+      "tags": ["environment", "sustainability", "awareness"],
+      "description": "Demonstrates support for environmental protection"
+    },
+    {
+      "date": "04-23",
+      "name": "World Book Day",
+      "tags": ["education", "culture", "retail"],
+      "description": "Celebrates reading and publishing"
+    },
+    {
+      "date": "05-01",
+      "name": "International Workers' Day",
+      "tags": ["business", "awareness", "social"],
+      "description": "Celebrates workers and the labor movement"
+    },
+    {
+      "date": "05-04",
+      "name": "Star Wars Day",
+      "tags": ["entertainment", "pop-culture", "fun"],
+      "description": "May the Fourth be with you!"
+    },
+    {
+      "date": "06-05",
+      "name": "World Environment Day",
+      "tags": ["environment", "sustainability", "awareness"],
+      "description": "Encourages awareness and action for environmental protection"
+    },
+    {
+      "date": "06-08",
+      "name": "World Oceans Day",
+      "tags": ["environment", "sustainability", "awareness"],
+      "description": "Raises awareness about ocean conservation"
+    },
+    {
+      "date": "06-21",
+      "name": "International Yoga Day",
+      "tags": ["wellness", "fitness", "health"],
+      "description": "Celebrates the physical and spiritual benefits of yoga"
+    },
+    {
+      "date": "07-06",
+      "name": "International Kissing Day",
+      "tags": ["romance", "fun", "relationships"],
+      "description": "Celebrates the simple pleasure of kissing"
+    },
+    {
+      "date": "07-17",
+      "name": "World Emoji Day",
+      "tags": ["technology", "social-media", "fun"],
+      "description": "Celebrates the use of emojis in digital communication"
+    },
+    {
+      "date": "07-30",
+      "name": "International Day of Friendship",
+      "tags": ["relationships", "social", "wellness"],
+      "description": "Promotes friendship between peoples and cultures"
+    },
+    {
+      "date": "08-08",
+      "name": "International Cat Day",
+      "tags": ["pets", "fun", "social"],
+      "description": "Celebrates our feline friends"
+    },
+    {
+      "date": "08-19",
+      "name": "World Photography Day",
+      "tags": ["arts", "technology", "creative"],
+      "description": "Celebrates the art and science of photography"
+    },
+    {
+      "date": "08-26",
+      "name": "International Dog Day",
+      "tags": ["pets", "fun", "social"],
+      "description": "Celebrates dogs and promotes adoption"
+    },
+    {
+      "date": "09-05",
+      "name": "International Day of Charity",
+      "tags": ["nonprofit", "social", "awareness"],
+      "description": "Promotes charitable activities worldwide"
+    },
+    {
+      "date": "09-21",
+      "name": "International Day of Peace",
+      "tags": ["awareness", "social", "global"],
+      "description": "Devoted to strengthening peace among nations"
+    },
+    {
+      "date": "09-27",
+      "name": "World Tourism Day",
+      "tags": ["travel", "hospitality", "business"],
+      "description": "Raises awareness about tourism's role in the global community"
+    },
+    {
+      "date": "10-01",
+      "name": "International Coffee Day",
+      "tags": ["food", "beverage", "social"],
+      "description": "Celebrates coffee and raises awareness for coffee growers"
+    },
+    {
+      "date": "10-04",
+      "name": "World Animal Day",
+      "tags": ["animals", "awareness", "environment"],
+      "description": "Raises the status of animals and improves welfare standards"
+    },
+    {
+      "date": "10-10",
+      "name": "World Mental Health Day",
+      "tags": ["health", "wellness", "awareness"],
+      "description": "Raises awareness about mental health issues"
+    },
+    {
+      "date": "10-16",
+      "name": "World Food Day",
+      "tags": ["food", "awareness", "sustainability"],
+      "description": "Promotes awareness and action for those suffering from hunger"
+    },
+    {
+      "date": "10-31",
+      "name": "Halloween",
+      "tags": ["fun", "retail", "entertainment"],
+      "description": "Spooky celebration with costumes and treats"
+    },
+    {
+      "date": "11-08",
+      "name": "World Cappuccino Day",
+      "tags": ["food", "beverage", "social"],
+      "description": "Celebrates the Italian coffee drink"
+    },
+    {
+      "date": "11-13",
+      "name": "World Kindness Day",
+      "tags": ["wellness", "social", "positive"],
+      "description": "Promotes kindness and compassion"
+    },
+    {
+      "date": "11-17",
+      "name": "International Students' Day",
+      "tags": ["education", "youth", "awareness"],
+      "description": "Celebrates multiculturalism and international education"
+    },
+    {
+      "date": "11-21",
+      "name": "World Television Day",
+      "tags": ["media", "entertainment", "technology"],
+      "description": "Recognizes television's impact on communication"
+    },
+    {
+      "date": "12-04",
+      "name": "National Cookie Day",
+      "tags": ["food", "fun", "retail"],
+      "description": "Celebrates cookies in all their delicious forms"
+    },
+    {
+      "date": "12-10",
+      "name": "Human Rights Day",
+      "tags": ["awareness", "social", "global"],
+      "description": "Commemorates the Universal Declaration of Human Rights"
+    },
+    {
+      "date": "03-14",
+      "name": "Pi Day",
+      "tags": ["education", "mathematics", "fun"],
+      "description": "Celebrates the mathematical constant π (pi)"
+    },
+    {
+      "date": "05-25",
+      "name": "Geek Pride Day",
+      "tags": ["technology", "pop-culture", "fun"],
+      "description": "Celebrates geek culture"
+    },
+    {
+      "date": "06-18",
+      "name": "International Sushi Day",
+      "tags": ["food", "restaurant", "culture"],
+      "description": "Celebrates Japanese cuisine and sushi"
+    },
+    {
+      "date": "07-11",
+      "name": "World Chocolate Day",
+      "tags": ["food", "retail", "fun"],
+      "description": "Celebrates chocolate in all its forms"
+    },
+    {
+      "date": "08-12",
+      "name": "International Youth Day",
+      "tags": ["youth", "awareness", "social"],
+      "description": "Celebrates young people and their contributions"
+    },
+    {
+      "date": "09-19",
+      "name": "International Talk Like a Pirate Day",
+      "tags": ["fun", "social-media", "entertainment"],
+      "description": "A parody holiday for talking like a pirate"
+    },
+    {
+      "date": "11-01",
+      "name": "World Vegan Day",
+      "tags": ["food", "health", "sustainability"],
+      "description": "Celebrates veganism and plant-based lifestyles"
+    },
+    {
+      "date": "11-11",
+      "name": "Singles Day",
+      "tags": ["retail", "ecommerce", "social"],
+      "description": "Celebrates being single and has become a major shopping event"
+    },
+    {
+      "date": "11-29",
+      "name": "Black Friday",
+      "tags": ["retail", "ecommerce", "shopping"],
+      "description": "Major shopping event with significant discounts"
+    },
+    {
+      "date": "12-02",
+      "name": "Cyber Monday",
+      "tags": ["retail", "ecommerce", "technology"],
+      "description": "Online shopping event following Black Friday"
+    }
+  ]
+}

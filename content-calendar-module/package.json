@@ -1,0 +1,21 @@
+{
+  "name": "content-calendar-module",
+  "version": "1.0.0",
+  "description": "Intelligent Content Calendar with AI Suggestions",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "backend:dev": "cd backend && npm run dev",
+    "frontend:dev": "cd frontend && npm run dev",
+    "backend:install": "cd backend && npm install",
+    "frontend:install": "cd frontend && npm install",
+    "install:all": "npm run backend:install && npm run frontend:install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["calendar", "content", "ai", "social-media"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
