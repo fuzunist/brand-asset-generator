@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akıllı Döküman Oluşturucu</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        <i class="fas fa-file-word text-blue-600 mr-2"></i>
+                        Akıllı Döküman Oluşturucu
+                    </h1>
+                    <span class="text-sm text-gray-500">MVP Version 1.0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Template Selection -->
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Şablon Seçin</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Proposal Card -->
+                    <div class="template-card bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow" data-template="proposal">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-file-invoice text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Satış Teklifi</h3>
+                                <p class="text-sm text-gray-600">Profesyonel satış teklifi oluştur</p>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                            Marka kimliğinizle özelleştirilmiş
+                        </div>
+                    </div>
+
+                    <!-- Contract Card -->
+                    <div class="template-card bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow" data-template="contract">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-file-contract text-green-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Hizmet Sözleşmesi</h3>
+                                <p class="text-sm text-gray-600">Basit hizmet sözleşmesi oluştur</p>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                            Yasal şartlar içerir
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Modal -->
+            <div id="formModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 id="modalTitle" class="text-lg font-semibold text-gray-900"></h3>
+                        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+
+                    <form id="documentForm" class="space-y-4">
+                        <input type="hidden" id="templateType" name="templateType">
+                        
+                        <!-- Client Name -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Müşteri Adı <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="clientName" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Örn: ABC Teknoloji Ltd. Şti.">
+                        </div>
+
+                        <!-- Project Name -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Proje Adı <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="projectName" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Örn: Kurumsal Web Sitesi Geliştirme">
+                        </div>
+
+                        <!-- Project Scope -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Proje Kapsamı <span class="text-red-500">*</span>
+                            </label>
+                            <textarea name="projectScope" rows="4" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Projenin detaylı açıklamasını girin..."></textarea>
+                        </div>
+
+                        <!-- Total Price -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Toplam Tutar (TL) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" name="totalPrice" required min="0" step="0.01"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Örn: 25000">
+                        </div>
+
+                        <!-- Date -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Tarih <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" name="date" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <!-- Contract Specific Fields -->
+                        <div id="contractFields" class="hidden space-y-4">
+                            <!-- Start Date -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Başlangıç Tarihi <span class="text-red-500">*</span>
+                                </label>
+                                <input type="date" name="startDate" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- End Date -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Bitiş Tarihi <span class="text-red-500">*</span>
+                                </label>
+                                <input type="date" name="endDate" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button type="button" onclick="closeModal()" 
+                                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
+                                İptal
+                            </button>
+                            <button type="submit" id="generateBtn"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center">
+                                <i class="fas fa-download mr-2"></i>
+                                Döküman Oluştur
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="mt-12 bg-blue-50 rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                    <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                    Nasıl Çalışır?
+                </h3>
+                <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                    <li>Yukarıdan bir şablon seçin (Teklif veya Sözleşme)</li>
+                    <li>Açılan formda gerekli bilgileri doldurun</li>
+                    <li>"Döküman Oluştur" butonuna tıklayın</li>
+                    <li>Profesyonel Word dökümanınız otomatik olarak indirilecek</li>
+                    <li>İndirilen dosyayı Word'de açıp düzenleyebilirsiniz</li>
+                </ol>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

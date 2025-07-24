@@ -1,0 +1,10 @@
+{
+  "templateType": "proposal",
+  "formData": {
+    "clientName": "ABC Teknoloji Ltd. Şti.",
+    "projectName": "Kurumsal Web Sitesi Geliştirme",
+    "projectScope": "Modern, responsive ve SEO uyumlu kurumsal web sitesi tasarımı ve geliştirmesi. Proje kapsamında ana sayfa, hakkımızda, hizmetler, blog ve iletişim sayfaları yer alacaktır. Ayrıca içerik yönetim sistemi (CMS) entegrasyonu yapılacaktır.",
+    "totalPrice": 25000,
+    "date": "2024-01-15"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "templateType": "contract",
+  "formData": {
+    "clientName": "XYZ Danışmanlık A.Ş.",
+    "projectName": "Dijital Pazarlama Danışmanlığı",
+    "projectScope": "Sosyal medya yönetimi, Google Ads kampanyaları, SEO optimizasyonu ve aylık raporlama hizmetlerini içeren dijital pazarlama danışmanlığı. Hedef kitle analizi, içerik stratejisi geliştirme ve performans takibi dahildir.",
+    "totalPrice": 45000,
+    "date": "2024-01-20",
+    "startDate": "2024-02-01",
+    "endDate": "2024-07-31"
+  }
+}

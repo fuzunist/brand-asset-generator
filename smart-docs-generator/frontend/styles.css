@@ -1,0 +1,101 @@
+/* Additional custom styles */
+
+/* Template card hover effect */
+.template-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.template-card:hover {
+    border-color: #3B82F6;
+    transform: translateY(-2px);
+}
+
+/* Modal animation */
+#formModal {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#formModal > div {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+/* Form input focus styles */
+input:focus,
+textarea:focus {
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Button hover effects */
+button {
+    transition: all 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Notification styles */
+.notification-enter {
+    animation: notificationSlideIn 0.3s ease-out;
+}
+
+@keyframes notificationSlideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    #formModal > div {
+        margin: 10px;
+        top: 10px;
+    }
+}
