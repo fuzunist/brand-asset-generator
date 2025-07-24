@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro Survey Widget - Test Integration</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .section {
+            margin: 30px 0;
+        }
+        
+        .code-block {
+            background: #f8f8f8;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .test-controls {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f7ff;
+            border-radius: 8px;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        .info {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 16px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Micro Survey Widget - Test Page</h1>
+        
+        <div class="info">
+            <strong>Note:</strong> This is a test page to demonstrate the micro-survey widget integration. 
+            The widget will appear in the bottom-right corner of this page.
+        </div>
+        
+        <div class="section">
+            <h2>About This Demo</h2>
+            <p>
+                This page demonstrates how to integrate the BrandOS micro-survey widget into your website. 
+                The widget is designed to be lightweight, non-intrusive, and fully isolated from your site's styles.
+            </p>
+        </div>
+        
+        <div class="section">
+            <h2>Integration Code</h2>
+            <p>To add the survey widget to your page, simply include the following code:</p>
+            <div class="code-block">
+&lt;div id="brandos-survey-widget" data-survey-id="test-survey-123"&gt;&lt;/div&gt;
+&lt;script src="https://cdn.brandos.com/widget.js" async defer&gt;&lt;/script&gt;
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Features</h2>
+            <ul>
+                <li>✅ Lightweight (< 20kb)</li>
+                <li>✅ CSS isolated using iframe technology</li>
+                <li>✅ Mobile responsive</li>
+                <li>✅ Duplicate vote prevention</li>
+                <li>✅ Real-time results tracking</li>
+                <li>✅ Non-blocking async loading</li>
+            </ul>
+        </div>
+        
+        <div class="test-controls">
+            <h3>Test Controls</h3>
+            <p>Use these controls to test the widget behavior:</p>
+            <button onclick="reloadWidget()">Reload Widget</button>
+            <button onclick="changeTheme()">Test CSS Isolation</button>
+        </div>
+    </div>
+    
+    <!-- BrandOS Survey Widget Integration -->
+    <div id="brandos-survey-widget" data-survey-id="test-survey-123"></div>
+    <script src="./widget/widget.js" async defer></script>
+    
+    <script>
+        // Test functions
+        function reloadWidget() {
+            const container = document.getElementById('brandos-survey-widget');
+            const oldScript = document.querySelector('script[src*="widget.js"]');
+            
+            // Remove old widget
+            container.innerHTML = '';
+            
+            // Reload widget
+            const newScript = document.createElement('script');
+            newScript.src = './widget/widget.js';
+            newScript.async = true;
+            newScript.defer = true;
+            document.body.appendChild(newScript);
+            
+            if (oldScript) {
+                oldScript.remove();
+            }
+        }
+        
+        function changeTheme() {
+            // This tests CSS isolation - widget styles should not be affected
+            document.body.style.background = document.body.style.background === 'black' ? '#f5f5f5' : 'black';
+            document.body.style.color = document.body.style.color === 'white' ? 'inherit' : 'white';
+            
+            // Add some aggressive CSS that would normally break widgets
+            const style = document.createElement('style');
+            style.textContent = `
+                * { border: 2px solid red !important; }
+                button { background: green !important; }
+            `;
+            document.head.appendChild(style);
+            
+            setTimeout(() => {
+                style.remove();
+                alert('CSS isolation test complete! The widget should remain unaffected.');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
