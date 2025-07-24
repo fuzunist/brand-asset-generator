@@ -1,0 +1,13 @@
+{
+  "name": "micro-survey-widget",
+  "version": "1.0.0",
+  "description": "Embeddable survey widget",
+  "main": "widget.js",
+  "scripts": {
+    "build": "node build.js",
+    "test": "echo \"No tests yet\""
+  },
+  "devDependencies": {
+    "terser": "^5.26.0"
+  }
+}
