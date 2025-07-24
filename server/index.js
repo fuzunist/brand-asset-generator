@@ -2148,6 +2148,181 @@ app.get('/api/sentiment/feed', authMiddleware, async (req, res) => {
     }
 });
 
+// Brand Consistency Audit endpoint
+app.post('/api/audits/consistency', authMiddleware, async (req, res) => {
+    console.log('Brand consistency audit request received:', req.body);
+    
+    try {
+        const { url, brand_identity_id } = req.body;
+        
+        if (!url) {
+            return res.status(400).json({ error: 'URL is required' });
+        }
+
+        console.log(`Starting consistency audit for URL: ${url}`);
+        console.log(`Brand identity ID: ${brand_identity_id}`);
+
+        // Get brand identity details
+        const brandIdentity = await db.get(
+            'SELECT * FROM brand_identities WHERE id = ?',
+            [brand_identity_id]
+        );
+
+        if (!brandIdentity) {
+            console.log('Brand identity not found for ID:', brand_identity_id);
+            return res.status(404).json({ error: 'Brand identity not found' });
+        }
+
+        console.log('Brand identity found:', brandIdentity);
+
+        // Launch browser and analyze the website
+        const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
+
+        console.log('Browser launched successfully');
+
+        try {
+            const page = await browser.newPage();
+            console.log('New page created');
+
+            // Set user agent to avoid detection
+            await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+            
+            console.log(`Navigating to: ${url}`);
+            await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+            console.log('Page loaded successfully');
+
+            // Extract colors and fonts from the page
+            const auditResults = await page.evaluate(() => {
+                const colors = new Set();
+                const fonts = new Set();
+
+                // Extract colors from CSS
+                const styleSheets = Array.from(document.styleSheets);
+                styleSheets.forEach(sheet => {
+                    try {
+                        const rules = Array.from(sheet.cssRules || []);
+                        rules.forEach(rule => {
+                            if (rule.style) {
+                                const color = rule.style.color || rule.style.backgroundColor || rule.style.borderColor;
+                                if (color && color !== 'transparent' && color !== 'inherit') {
+                                    colors.add(color.toLowerCase());
+                                }
+                            }
+                        });
+                    } catch (e) {
+                        // CORS error or other issues with external stylesheets
+                        console.log('Could not access stylesheet:', e);
+                    }
+                });
+
+                // Extract fonts from computed styles
+                const elements = document.querySelectorAll('*');
+                elements.forEach(element => {
+                    const computedStyle = window.getComputedStyle(element);
+                    const fontFamily = computedStyle.fontFamily;
+                    if (fontFamily && fontFamily !== 'inherit') {
+                        fonts.add(fontFamily.split(',')[0].replace(/['"]/g, '').trim());
+                    }
+                });
+
+                return {
+                    colors: Array.from(colors),
+                    fonts: Array.from(fonts)
+                };
+            });
+
+            console.log('Audit results extracted:', auditResults);
+
+            // Parse brand colors and fonts
+            const approvedColors = brandIdentity.approved_colors ? JSON.parse(brandIdentity.approved_colors) : [];
+            const approvedFonts = brandIdentity.approved_fonts ? JSON.parse(brandIdentity.approved_fonts) : [];
+
+            console.log('Approved colors:', approvedColors);
+            console.log('Approved fonts:', approvedFonts);
+
+            // Analyze consistency
+            const colorAnalysis = {
+                approved: [],
+                unapproved: []
+            };
+
+            const fontAnalysis = {
+                approved: [],
+                unapproved: []
+            };
+
+            // Check colors
+            auditResults.colors.forEach(color => {
+                const normalizedColor = color.toLowerCase();
+                const isApproved = approvedColors.some(approved => 
+                    approved.toLowerCase() === normalizedColor
+                );
+                
+                if (isApproved) {
+                    colorAnalysis.approved.push(color);
+                } else {
+                    colorAnalysis.unapproved.push(color);
+                }
+            });
+
+            // Check fonts
+            auditResults.fonts.forEach(font => {
+                const normalizedFont = font.toLowerCase();
+                const isApproved = approvedFonts.some(approved => 
+                    approved.toLowerCase() === normalizedFont
+                );
+                
+                if (isApproved) {
+                    fontAnalysis.approved.push(font);
+                } else {
+                    fontAnalysis.unapproved.push(font);
+                }
+            });
+
+            console.log('Color analysis:', colorAnalysis);
+            console.log('Font analysis:', fontAnalysis);
+
+            // Calculate consistency score
+            const totalElements = auditResults.colors.length + auditResults.fonts.length;
+            const approvedElements = colorAnalysis.approved.length + fontAnalysis.approved.length;
+            const score = totalElements > 0 ? Math.round((approvedElements / totalElements) * 100) : 100;
+
+            console.log(`Consistency score calculated: ${score}%`);
+
+            const response = {
+                auditUrl: url,
+                score: score,
+                results: {
+                    colors: colorAnalysis,
+                    fonts: fontAnalysis
+                },
+                brandIdentity: {
+                    name: brandIdentity.name,
+                    approvedColors: approvedColors,
+                    approvedFonts: approvedFonts
+                }
+            };
+
+            console.log('Final response prepared:', response);
+            res.json(response);
+
+        } finally {
+            await browser.close();
+            console.log('Browser closed');
+        }
+
+    } catch (error) {
+        console.error('Error in brand consistency audit:', error);
+        res.status(500).json({ 
+            error: 'Failed to perform brand consistency audit',
+            details: error.message 
+        });
+    }
+});
+
 app.get('/', (req, res) => {
     res.send('Hello from the server!');
 });

@@ -20,6 +20,7 @@ import BrandConsistencyAuditor from './components/BrandConsistencyAuditor';
 import AdKitGenerator from './components/AdKitGenerator';
 import SentimentAnalysisDashboard from './components/SentimentAnalysisDashboard';
 import ThoughtLeadership from './components/ThoughtLeadership';
+import MicroSurveyDashboard from './components/MicroSurveyDashboard';
 
 // A wrapper for routes that require authentication
 /* const ProtectedRoute = ({ allowedRoles }) => {
@@ -162,6 +163,16 @@ const Layout = () => {
                                 Thought Leadership
                             </Link>
                             
+                            <Link 
+                                to="/micro-survey" 
+                                className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                            >
+                                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Micro Survey
+                            </Link>
+                            
                             {user.role === 'owner' && (
                                 <Link 
                                     to="/team" 
@@ -236,6 +247,7 @@ function App() {
                             <Route path="ad-kit" element={<AdKitGenerator />} />
                             <Route path="sentiment-analysis" element={<SentimentAnalysisDashboard />} />
                             <Route path="thought-leadership" element={<ThoughtLeadership />} />
+                            <Route path="micro-survey" element={<MicroSurveyDashboard />} />
                         {/* </Route> */}
 
                         {/* Owner-only routes */}

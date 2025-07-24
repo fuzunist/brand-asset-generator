@@ -68,6 +68,8 @@ async function setupDatabase() {
             accent_color TEXT,
             headline_font TEXT DEFAULT 'Inter',
             body_font TEXT DEFAULT 'Inter',
+            approved_colors TEXT, -- JSON array of approved brand colors
+            approved_fonts TEXT, -- JSON array of approved brand fonts
             press_kit_slug TEXT UNIQUE,
             press_contact_email TEXT,
             logo_url TEXT,
