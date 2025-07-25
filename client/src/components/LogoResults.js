@@ -170,31 +170,30 @@ const LogoResults = () => {
                                         />
                                     </div>
                                     <div className="flex items-center justify-between mb-2">
-                                        <h3 className="font-semibold text-gray-900">{logo.name}</h3>
+                                        <div>
+                                            <h3 className="font-semibold text-gray-900">{logo.name || 'Logo'}</h3>
+                                            {logo.industry && (
+                                                <p className="text-xs text-gray-500 capitalize">{logo.industry}</p>
+                                            )}
+                                        </div>
                                         {selectedLogo?.id === logo.id && (
                                             <CheckCircle className="w-5 h-5 text-blue-600" />
                                         )}
                                     </div>
                                     <p className="text-sm text-gray-600 mb-3">{logo.description}</p>
-                                    <div className="flex items-center space-x-2">
-                                        {logo.colors ? (
-                                            logo.colors.map((color, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="w-4 h-4 rounded-full border border-gray-200"
-                                                    style={{ backgroundColor: color }}
-                                                ></div>
-                                            ))
-                                        ) : (
-                                            // Eğer colors yoksa, tags'dan renk çıkar
-                                            logo.tags?.slice(0, 3).map((tag, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full"
-                                                >
-                                                    {tag}
-                                                </div>
-                                            ))
+                                    <div className="flex flex-wrap gap-1">
+                                        {logo.tags?.slice(0, 5).map((tag, index) => (
+                                            <div
+                                                key={index}
+                                                className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full"
+                                            >
+                                                {tag}
+                                            </div>
+                                        ))}
+                                        {logo.tags && logo.tags.length > 5 && (
+                                            <div className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
+                                                +{logo.tags.length - 5}
+                                            </div>
                                         )}
                                     </div>
                                 </CardContent>

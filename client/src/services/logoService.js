@@ -35,18 +35,18 @@ export class LogoService {
             for (const doc of querySnapshot.docs) {
                 const logoData = doc.data();
                 try {
-                    // SVG dosyasının download URL'ini al
-                    const svgRef = ref(storage, logoData.storagePath_svg);
-                    const svgUrl = await getDownloadURL(svgRef);
+                    // PNG dosyasının download URL'ini al
+                    const pngRef = ref(storage, logoData.storagePath_png_source);
+                    const pngUrl = await getDownloadURL(pngRef);
 
                     logos.push({
                         id: doc.id,
                         ...logoData,
-                        svgUrl,
-                        previewUrl: svgUrl // SVG'yi preview olarak kullan
+                        pngUrl,
+                        previewUrl: pngUrl // PNG'yi preview olarak kullan
                     });
                 } catch (error) {
-                    console.error(`SVG URL alınamadı: ${doc.id}`, error);
+                    console.error(`PNG URL alınamadı: ${doc.id}`, error);
                     // Hata durumunda bu logoyu atla
                 }
             }
@@ -90,17 +90,17 @@ export class LogoService {
 
                 if (hasMatchingKeyword) {
                     try {
-                        const svgRef = ref(storage, logoData.storagePath_svg);
-                        const svgUrl = await getDownloadURL(svgRef);
+                        const pngRef = ref(storage, logoData.storagePath_png_source);
+                        const pngUrl = await getDownloadURL(pngRef);
 
                         logos.push({
                             id: doc.id,
                             ...logoData,
-                            svgUrl,
-                            previewUrl: svgUrl
+                            pngUrl,
+                            previewUrl: pngUrl
                         });
                     } catch (error) {
-                        console.error(`SVG URL alınamadı: ${doc.id}`, error);
+                        console.error(`PNG URL alınamadı: ${doc.id}`, error);
                     }
                 }
             }
@@ -133,17 +133,17 @@ export class LogoService {
             for (const doc of querySnapshot.docs) {
                 const logoData = doc.data();
                 try {
-                    const svgRef = ref(storage, logoData.storagePath_svg);
-                    const svgUrl = await getDownloadURL(svgRef);
+                    const pngRef = ref(storage, logoData.storagePath_png_source);
+                    const pngUrl = await getDownloadURL(pngRef);
 
                     logos.push({
                         id: doc.id,
                         ...logoData,
-                        svgUrl,
-                        previewUrl: svgUrl
+                        pngUrl,
+                        previewUrl: pngUrl
                     });
                 } catch (error) {
-                    console.error(`SVG URL alınamadı: ${doc.id}`, error);
+                    console.error(`PNG URL alınamadı: ${doc.id}`, error);
                 }
             }
 
@@ -169,14 +169,14 @@ export class LogoService {
             }
 
             const logoData = logoDoc.data();
-            const svgRef = ref(storage, logoData.storagePath_svg);
-            const svgUrl = await getDownloadURL(svgRef);
+            const pngRef = ref(storage, logoData.storagePath_png_source);
+            const pngUrl = await getDownloadURL(pngRef);
 
             return {
                 id: logoDoc.id,
                 ...logoData,
-                svgUrl,
-                previewUrl: svgUrl
+                pngUrl,
+                previewUrl: pngUrl
             };
         } catch (error) {
             console.error('Logo getirilirken hata:', error);
@@ -200,7 +200,7 @@ export class LogoService {
                 status: 'published',
                 createdAt: new Date(),
                 previewUrl: 'https://via.placeholder.com/300x200/3B82F6/FFFFFF?text=Logo+1',
-                svgUrl: 'https://via.placeholder.com/300x200/3B82F6/FFFFFF?text=Logo+1'
+                pngUrl: 'https://via.placeholder.com/300x200/3B82F6/FFFFFF?text=Logo+1'
             },
             {
                 id: '2',
@@ -211,7 +211,7 @@ export class LogoService {
                 status: 'published',
                 createdAt: new Date(),
                 previewUrl: 'https://via.placeholder.com/300x200/10B981/FFFFFF?text=Logo+2',
-                svgUrl: 'https://via.placeholder.com/300x200/10B981/FFFFFF?text=Logo+2'
+                pngUrl: 'https://via.placeholder.com/300x200/10B981/FFFFFF?text=Logo+2'
             },
             {
                 id: '3',
@@ -222,7 +222,7 @@ export class LogoService {
                 status: 'published',
                 createdAt: new Date(),
                 previewUrl: 'https://via.placeholder.com/300x200/8B5CF6/FFFFFF?text=Logo+3',
-                svgUrl: 'https://via.placeholder.com/300x200/8B5CF6/FFFFFF?text=Logo+3'
+                pngUrl: 'https://via.placeholder.com/300x200/8B5CF6/FFFFFF?text=Logo+3'
             },
             {
                 id: '4',
@@ -233,7 +233,7 @@ export class LogoService {
                 status: 'published',
                 createdAt: new Date(),
                 previewUrl: 'https://via.placeholder.com/300x200/F97316/FFFFFF?text=Logo+4',
-                svgUrl: 'https://via.placeholder.com/300x200/F97316/FFFFFF?text=Logo+4'
+                pngUrl: 'https://via.placeholder.com/300x200/F97316/FFFFFF?text=Logo+4'
             },
             {
                 id: '5',
@@ -244,7 +244,7 @@ export class LogoService {
                 status: 'published',
                 createdAt: new Date(),
                 previewUrl: 'https://via.placeholder.com/300x200/EC4899/FFFFFF?text=Logo+5',
-                svgUrl: 'https://via.placeholder.com/300x200/EC4899/FFFFFF?text=Logo+5'
+                pngUrl: 'https://via.placeholder.com/300x200/EC4899/FFFFFF?text=Logo+5'
             }
         ];
 
