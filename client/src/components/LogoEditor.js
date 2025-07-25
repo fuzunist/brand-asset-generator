@@ -21,7 +21,6 @@ const LogoEditor = () => {
     const [formData, setFormData] = useState({
         companyName: location.state?.formData?.companyName || 'Company Name',
         brandColor: '#7c9c3f',
-        logoIcon: 'shield',
         fontSize: 1.2
     });
 
@@ -33,15 +32,6 @@ const LogoEditor = () => {
     ];
 
     const [selectedFont, setSelectedFont] = useState('Inter');
-
-    const iconSVGs = {
-        shield: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 2L2 7V10C2 16 6 20.9 12 22C18 20.9 22 16 22 10V7L12 2Z'/%3E%3C/svg%3E",
-        star: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z'/%3E%3C/svg%3E",
-        heart: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M20.84 4.61A5.5 5.5 0 0016 2A5.5 5.5 0 0012 4A5.5 5.5 0 008 2A5.5 5.5 0 003.16 4.61A5.5 5.5 0 002 8.5C2 12.28 12 22 12 22S22 12.28 22 8.5A5.5 5.5 0 0020.84 4.61Z'/%3E%3C/svg%3E",
-        circle: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3C/svg%3E",
-        diamond: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M6 3H18L22 9L12 21L2 9L6 3Z'/%3E%3C/svg%3E",
-        leaf: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22L6.66 19.7C7.14 19.87 7.64 20 8 20C19 20 22 3 22 3C21 5 14 5.25 9 6.25C4 7.25 2 11.5 2 13.5C2 15.5 3.75 17.25 3.75 17.25C7.5 15 12.5 16 17 8Z'/%3E%3C/svg%3E"
-    };
 
     useEffect(() => {
         if (location.state?.selectedLogo) {
@@ -141,24 +131,21 @@ const LogoEditor = () => {
                                     </div>
                                 </div>
 
-                                {/* Logo Icon */}
+                                {/* Logo Preview */}
                                 <div className="control-group">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         <Image className="w-4 h-4 inline mr-2" />
-                                        Logo Icon
+                                        Selected Logo
                                     </label>
-                                    <select
-                                        value={formData.logoIcon}
-                                        onChange={(e) => handleInputChange('logoIcon', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        <option value="shield">Shield</option>
-                                        <option value="star">Star</option>
-                                        <option value="heart">Heart</option>
-                                        <option value="circle">Circle</option>
-                                        <option value="diamond">Diamond</option>
-                                        <option value="leaf">Leaf</option>
-                                    </select>
+                                    <div className="bg-gray-50 rounded-lg p-4 flex items-center justify-center">
+                                        {selectedLogo && (
+                                            <img
+                                                src={selectedLogo.previewUrl || selectedLogo.preview}
+                                                alt="Selected Logo"
+                                                className="max-w-full max-h-20 object-contain"
+                                            />
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Font Selection */}
@@ -223,14 +210,13 @@ const LogoEditor = () => {
                                     {/* Large white card */}
                                     <div className="bg-white rounded-lg p-4 w-32 h-20 flex items-center justify-center shadow-lg">
                                         <div className="logo flex items-center gap-2">
-                                            <div 
-                                                className="w-4 h-4"
-                                                style={{
-                                                    backgroundColor: formData.brandColor,
-                                                    mask: `url("${iconSVGs[formData.logoIcon]}") no-repeat center`,
-                                                    maskSize: 'contain'
-                                                }}
-                                            ></div>
+                                            {selectedLogo && (
+                                                <img
+                                                    src={selectedLogo.previewUrl || selectedLogo.preview}
+                                                    alt="Logo"
+                                                    className="w-4 h-4 object-contain"
+                                                />
+                                            )}
                                             <span 
                                                 className="font-bold"
                                                 style={{
@@ -250,14 +236,13 @@ const LogoEditor = () => {
                                         style={{ backgroundColor: formData.brandColor }}
                                     >
                                         <div className="logo flex flex-col items-center gap-1 text-white">
-                                            <div 
-                                                className="w-4 h-4"
-                                                style={{
-                                                    backgroundColor: 'white',
-                                                    mask: `url("${iconSVGs[formData.logoIcon]}") no-repeat center`,
-                                                    maskSize: 'contain'
-                                                }}
-                                            ></div>
+                                            {selectedLogo && (
+                                                <img
+                                                    src={selectedLogo.previewUrl || selectedLogo.preview}
+                                                    alt="Logo"
+                                                    className="w-4 h-4 object-contain"
+                                                />
+                                            )}
                                             <span 
                                                 className="font-bold text-xs"
                                                 style={{
@@ -276,14 +261,13 @@ const LogoEditor = () => {
                                         style={{ backgroundColor: formData.brandColor }}
                                     >
                                         <div className="logo flex items-center gap-2 text-white">
-                                            <div 
-                                                className="w-4 h-4"
-                                                style={{
-                                                    backgroundColor: 'white',
-                                                    mask: `url("${iconSVGs[formData.logoIcon]}") no-repeat center`,
-                                                    maskSize: 'contain'
-                                                }}
-                                            ></div>
+                                            {selectedLogo && (
+                                                <img
+                                                    src={selectedLogo.previewUrl || selectedLogo.preview}
+                                                    alt="Logo"
+                                                    className="w-4 h-4 object-contain"
+                                                />
+                                            )}
                                             <span 
                                                 className="font-bold"
                                                 style={{
@@ -302,14 +286,13 @@ const LogoEditor = () => {
                                         style={{ backgroundColor: formData.brandColor }}
                                     >
                                         <div className="logo flex items-center gap-1 text-white">
-                                            <div 
-                                                className="w-3 h-3"
-                                                style={{
-                                                    backgroundColor: 'white',
-                                                    mask: `url("${iconSVGs[formData.logoIcon]}") no-repeat center`,
-                                                    maskSize: 'contain'
-                                                }}
-                                            ></div>
+                                            {selectedLogo && (
+                                                <img
+                                                    src={selectedLogo.previewUrl || selectedLogo.preview}
+                                                    alt="Logo"
+                                                    className="w-3 h-3 object-contain"
+                                                />
+                                            )}
                                             <span 
                                                 className="font-bold text-sm"
                                                 style={{
@@ -325,14 +308,13 @@ const LogoEditor = () => {
                                     {/* Small white card */}
                                     <div className="bg-white rounded-lg p-3 w-20 h-12 flex items-center justify-center shadow-lg">
                                         <div className="logo flex items-center gap-1">
-                                            <div 
-                                                className="w-3 h-3"
-                                                style={{
-                                                    backgroundColor: formData.brandColor,
-                                                    mask: `url("${iconSVGs[formData.logoIcon]}") no-repeat center`,
-                                                    maskSize: 'contain'
-                                                }}
-                                            ></div>
+                                            {selectedLogo && (
+                                                <img
+                                                    src={selectedLogo.previewUrl || selectedLogo.preview}
+                                                    alt="Logo"
+                                                    className="w-3 h-3 object-contain"
+                                                />
+                                            )}
                                             <span 
                                                 className="font-bold text-xs"
                                                 style={{
@@ -350,14 +332,13 @@ const LogoEditor = () => {
                                 {/* Right Section - Main Logo */}
                                 <div className="absolute right-0 top-0 w-2/5 h-full bg-white rounded-lg flex flex-col items-center justify-center gap-6">
                                     <div className="main-logo flex flex-col items-center gap-4">
-                                        <div 
-                                            className="w-24 h-24"
-                                            style={{
-                                                backgroundColor: formData.brandColor,
-                                                mask: `url("${iconSVGs[formData.logoIcon]}") no-repeat center`,
-                                                maskSize: 'contain'
-                                            }}
-                                        ></div>
+                                        {selectedLogo && (
+                                            <img
+                                                src={selectedLogo.previewUrl || selectedLogo.preview}
+                                                alt="Main Logo"
+                                                className="w-24 h-24 object-contain"
+                                            />
+                                        )}
                                         <div 
                                             className="text-3xl font-light tracking-wider"
                                             style={{
