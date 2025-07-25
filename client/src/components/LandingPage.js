@@ -1,282 +1,241 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
-    ArrowRight, 
     Sparkles, 
-    Package, 
-    Cpu,
+    Palette,
+    Type,
+    Download,
     CheckCircle,
     Star,
     Users,
-    TrendingUp,
-    Shield,
     Zap,
-    Target,
-    BarChart3,
-    FileText,
-    Globe,
-    MessageSquare,
-    Calendar,
-    Search,
-    FileCheck,
-    Award,
-    Eye,
-    Settings
+    ArrowRight,
+    Play
 } from 'lucide-react';
 import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Input } from './ui/input';
+import { Card, CardContent } from './ui/card';
 
 const LandingPage = () => {
-    const [currentStep, setCurrentStep] = useState(1);
+    const [companyName, setCompanyName] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
+
+    const handleStart = () => {
+        if (companyName.trim()) {
+            setIsLoading(true);
+            // Logo oluşturma sürecine yönlendir
+            setTimeout(() => {
+                navigate('/logo-creator', { 
+                    state: { companyName: companyName.trim() } 
+                });
+            }, 500);
+        }
+    };
 
     const features = [
         {
-            icon: <Zap className="h-8 w-8 text-indigo-500" />,
-            title: "Tek Tıkla Reklam Kiti",
-            description: "Marka kimliğinizle uyumlu, Google & Meta için anında reklam görselleri oluşturun.",
-            benefit: "Tasarımcı beklemeden, reklam kampanyalarınızı saatler içinde yayına alın, ajans masrafından kurtulun."
+            icon: <Sparkles className="h-6 w-6 text-blue-500" />,
+            title: "AI Logo Tasarımı",
+            description: "Yapay zeka ile saniyeler içinde profesyonel logo tasarımları"
         },
         {
-            icon: <MessageSquare className="h-8 w-8 text-indigo-500" />,
-            title: "E-posta Şablonları",
-            description: "Marka sesinize göre yazılmış, Mailchimp uyumlu, hazır pazarlama e-postaları.",
-            benefit: "Boş sayfa sendromuna son. Müşterilerinizle her zaman profesyonel ve tutarlı bir dilde iletişim kurun."
+            icon: <Palette className="h-6 w-6 text-blue-500" />,
+            title: "Marka Kiti",
+            description: "Logo, renk paleti, font ve tüm marka varlıkları"
         },
         {
-            icon: <Calendar className="h-8 w-8 text-indigo-500" />,
-            title: "İçerik Takvimi",
-            description: "Sektörünüzdeki trendleri ve özel günleri takip edip, size özel içerik fikirleri sunar.",
-            benefit: "Sosyal medyanızda 'bugün ne paylaşsam?' derdine son. Sürekli güncel ve etkileşim odaklı kalın."
+            icon: <Download className="h-6 w-6 text-blue-500" />,
+            title: "Hazır Dosyalar",
+            description: "Tüm formatlarda (PNG, SVG, PDF) indirime hazır"
+        }
+    ];
+
+    const testimonials = [
+        {
+            name: "Ahmet Yılmaz",
+            company: "TechStart",
+            text: "5 dakikada profesyonel logo oluşturdum. Harika sonuç!",
+            rating: 5
         },
         {
-            icon: <Target className="h-8 w-8 text-indigo-500" />,
-            title: "Mikro Anketler",
-            description: "Web sitenizde anlık geri bildirim toplayın, ürün ve sloganlarınızı test edin.",
-            benefit: "Tahmin yürütmeyi bırakın, doğrudan müşterinize sorun. Büyük lansmanlar öncesi riski azaltın."
+            name: "Ayşe Kaya",
+            company: "DesignCo",
+            text: "Ajans fiyatının 1/10'u, aynı kalite. Çok memnunum.",
+            rating: 5
         },
         {
-            icon: <Search className="h-8 w-8 text-indigo-500" />,
-            title: "SEO Fırsat Radarı",
-            description: "Rakiplerinizin zayıf olduğu, hedef kitlenizin aradığı 'düşük rekabetli' anahtar kelimeleri tespit eder.",
-            benefit: "Pahalı SEO ajanslarına ihtiyaç duymadan, Google'da rakiplerinizin önüne geçin."
-        },
-        {
-            icon: <FileText className="h-8 w-8 text-indigo-500" />,
-            title: "Akıllı Teklif Şablonları",
-            description: "Markanıza özel, profesyonel satış teklifi ve sözleşme taslakları oluşturarak satış sürecinizi hızlandırın.",
-            benefit: "Müşterilerinizin gözünde daha kurumsal ve güvenilir bir imaj çizin, satışlarınızı daha hızlı kapatın."
-        },
-        {
-            icon: <Globe className="h-8 w-8 text-indigo-500" />,
-            title: "Canlı Medya Kiti",
-            description: "Gazeteciler ve partnerler için her zaman güncel olan, tek linkle paylaşılabilir bir basın odası oluşturun.",
-            benefit: "Bir daha asla 'yüksek çözünürlüklü logonuz var mı?' e-postasıyla vakit kaybetmeyin."
-        },
-        {
-            icon: <BarChart3 className="h-8 w-8 text-indigo-500" />,
-            title: "Düşünce Liderliği Planı",
-            description: "Sektörünüzdeki trendleri analiz ederek, LinkedIn ve blog için uzmanlık gösteren içerik başlıkları önerir.",
-            benefit: "Sadece ürün satan değil, sektörüne yön veren bir uzman olarak konumlanın."
-        },
-        {
-            icon: <CheckCircle className="h-8 w-8 text-indigo-500" />,
-            title: "Marka Tutarlılık Denetçisi",
-            description: "Web sitenizi periyodik olarak tarar, marka kılavuzunuza uymayan renk veya font kullanımını raporlar.",
-            benefit: "Farklı departmanların yarattığı görsel karmaşayı önleyin. Markanızın her yerde profesyonel görünmesini garantileyin."
-        },
-        {
-            icon: <Users className="h-8 w-8 text-indigo-500" />,
-            title: "Partner & Ajans Portalı",
-            description: "Freelancer ve ajanslarınız için sadece onaylı marka varlıklarına ulaşabilecekleri, kısıtlı bir erişim paneli.",
-            benefit: "Ajansınızın yanlış logo kullanma riskini sıfırlayın. Marka kontrolünü kaybetmeden güvenle iş birliği yapın."
-        },
-        {
-            icon: <Eye className="h-8 w-8 text-indigo-500" />,
-            title: "Algı Analizi",
-            description: "Markanız hakkındaki sosyal medya konuşmalarının duygu analizini yapın.",
-            benefit: "Müşterilerinizin sizin hakkınızda ne konuştuğunu ilk siz duyun. Potansiyel krizleri büyümeden önce tespit edin."
-        },
-        {
-            icon: <Settings className="h-8 w-8 text-indigo-500" />,
-            title: "Web Sitesi Raporu",
-            description: "Sitenizin marka tutarlılığını, hızını ve mobil uyumunu otomatik olarak denetleyin.",
-            benefit: "Yavaş veya kullanışsız bir site yüzünden müşteri kaybetmeye son. Ziyaretçi deneyimini iyileştirerek satışlarınızı artırın."
+            name: "Mehmet Demir",
+            company: "Freelancer",
+            text: "Müşterilerim için hızlı logo çözümü buldum.",
+            rating: 5
         }
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-white">
+            {/* Header */}
+            <header className="border-b border-gray-100">
+                <div className="container mx-auto px-4 py-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                <Sparkles className="w-5 h-5 text-white" />
+                            </div>
+                            <span className="text-xl font-bold text-gray-900">Ficonica</span>
+                        </div>
+                        <nav className="hidden md:flex items-center space-x-8">
+                            <a href="#features" className="text-gray-600 hover:text-blue-600">Özellikler</a>
+                            <a href="#pricing" className="text-gray-600 hover:text-blue-600">Fiyatlandırma</a>
+                            <a href="#faq" className="text-gray-600 hover:text-blue-600">SSS</a>
+                            <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">Giriş Yap</Link>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+
             {/* Hero Section */}
-            <section className="relative min-h-screen flex flex-col items-center justify-center text-center p-8 bg-gradient-to-br from-indigo-50 via-white to-pink-50">
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-100/50 to-pink-100/50"></div>
-                <div className="relative z-10 max-w-4xl mx-auto">
-                    <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
-                        Bir <span className="bg-gradient-to-r from-indigo-600 to-pink-600 bg-clip-text text-transparent">Logodan</span> Daha Fazlası.
-                    </h1>
-                    <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-8">
-                        Markanız bir resimle başlamaz, bir vizyonla başlar. Biz o vizyonu önce bir logoya, sonra bir kimliğe, en sonunda ise markanızın atan kalbi olan bir işletim sistemine dönüştürüyoruz.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Link to="/dashboard">
-                            <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-full transform hover:scale-105 transition-all">
-                                Yolculuğu Keşfet
-                                <ArrowRight className="ml-2 h-5 w-5" />
-                            </Button>
-                        </Link>
-                        <Button 
-                            size="lg" 
-                            variant="outline" 
-                            className="font-bold py-4 px-8 rounded-full"
-                            onClick={() => {
-                                const step3Section = document.getElementById('step3');
-                                if (step3Section) {
-                                    step3Section.scrollIntoView({ behavior: 'smooth' });
-                                }
-                            }}
-                        >
-                            Nasıl Çalışır?
-                        </Button>
-                    </div>
-                </div>
-            </section>
-
-            {/* Step 1: Logo - Kanca */}
-            <section className="py-20 md:py-32 bg-white">
-                <div className="container mx-auto px-6 flex flex-col md:flex-row items-center">
-                    <div className="md:w-1/2 p-8">
-                        <div className="text-indigo-600 font-bold tracking-wider mb-2">AŞAMA 1: KANCA</div>
-                        <h2 className="text-4xl md:text-5xl font-bold mb-4">Her Şey Bir Fikirle Başlar</h2>
-                        <p className="text-lg text-gray-600 mb-6">
-                            Markanızın ilk izlenimi, ilk tanışması. Logo tasarımı sadece bir görsel değil, markanızın DNA'sının görsel ifadesidir.
+            <section className="py-20 md:py-32">
+                <div className="container mx-auto px-4 text-center">
+                    <div className="max-w-4xl mx-auto">
+                        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+                            AI ile <span className="text-blue-600">Logo</span> ve <span className="text-blue-600">Marka Kiti</span> Oluşturun
+                        </h1>
+                        <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+                            Şirket adınızı girin, yapay zeka sizin için profesyonel logo tasarımları ve tam marka kiti oluştursun.
                         </p>
-                        <div className="space-y-3">
-                            <div className="flex items-center">
-                                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                                <span>Profesyonel logo tasarımı</span>
-                            </div>
-                            <div className="flex items-center">
-                                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                                <span>Farklı formatlarda teslim</span>
-                            </div>
-                            <div className="flex items-center">
-                                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                                <span>Marka kimliği kılavuzu</span>
-                            </div>
-                        </div>
-                        <Link to="/dashboard">
-                            <Button className="mt-6 bg-indigo-600 hover:bg-indigo-700">
-                                Logo Oluştur
-                                <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </Link>
-                    </div>
-                    <div className="md:w-1/2 p-8 flex justify-center">
-                        <div className="bg-gradient-to-br from-indigo-100 to-indigo-200 p-8 rounded-2xl shadow-2xl">
-                            <Sparkles className="h-32 w-32 text-indigo-600 mx-auto mb-4" />
-                            <h3 className="text-2xl font-bold text-indigo-800 text-center">Logo Generator</h3>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
-            {/* Step 2: Kit - Lansman Paketi */}
-            <section className="py-20 md:py-32 bg-gray-50">
-                <div className="container mx-auto px-6 flex flex-col md:flex-row-reverse items-center">
-                    <div className="md:w-1/2 p-8">
-                        <div className="text-pink-500 font-bold tracking-wider mb-2">AŞAMA 2: KİT</div>
-                        <h2 className="text-4xl md:text-5xl font-bold mb-4">Markanızı Hayata Geçirin</h2>
-                        <p className="text-lg text-gray-600 mb-6">
-                            Logo sadece başlangıç. Şimdi markanızı her platformda tutarlı ve etkileyici gösterecek tüm araçları oluşturun.
-                        </p>
-                        <div className="space-y-3">
-                            <div className="flex items-center">
-                                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                                <span>Kartvizit tasarımları</span>
-                            </div>
-                            <div className="flex items-center">
-                                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                                <span>E-posta imzası</span>
-                            </div>
-                            <div className="flex items-center">
-                                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                                <span>Basın kiti</span>
-                            </div>
-                            <div className="flex items-center">
-                                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                                <span>Marka kitabı</span>
+                        {/* Main CTA - Zoviz style */}
+                        <div className="max-w-md mx-auto mb-12">
+                            <div className="bg-white border-2 border-gray-200 rounded-xl p-2 shadow-lg">
+                                <div className="flex items-center">
+                                    <Input
+                                        type="text"
+                                        placeholder="Şirket adınızı girin..."
+                                        value={companyName}
+                                        onChange={(e) => setCompanyName(e.target.value)}
+                                        className="border-0 text-lg py-4 px-4 focus:ring-0 focus:outline-none"
+                                        onKeyPress={(e) => e.key === 'Enter' && handleStart()}
+                                    />
+                                    <Button
+                                        onClick={handleStart}
+                                        disabled={!companyName.trim() || isLoading}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold ml-2"
+                                    >
+                                        {isLoading ? (
+                                            <div className="flex items-center">
+                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                                Oluşturuluyor...
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center">
+                                                Başla
+                                                <ArrowRight className="ml-2 h-4 w-4" />
+                                            </div>
+                                        )}
+                                    </Button>
+                                </div>
                             </div>
                         </div>
-                        <Link to="/dashboard">
-                            <Button className="mt-6 bg-pink-600 hover:bg-pink-700">
-                                Marka Kitini Oluştur
-                                <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </Link>
-                    </div>
-                    <div className="md:w-1/2 p-8 flex justify-center">
-                        <div className="bg-gradient-to-br from-pink-100 to-pink-200 p-8 rounded-2xl shadow-2xl">
-                            <Package className="h-32 w-32 text-pink-600 mx-auto mb-4" />
-                            <h3 className="text-2xl font-bold text-pink-800 text-center">Brand Launch Kit</h3>
+
+                        {/* Demo Video */}
+                        <div className="mb-16">
+                            <div className="bg-gray-100 rounded-xl p-8 max-w-2xl mx-auto">
+                                <div className="flex items-center justify-center mb-4">
+                                    <Play className="w-8 h-8 text-blue-600" />
+                                </div>
+                                <p className="text-gray-600">Nasıl çalıştığını görün</p>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </section>
 
-            {/* Step 3: Brand OS - İşletim Sistemi */}
-            <section id="step3" className="py-20 md:py-32 bg-white">
-                <div className="container mx-auto px-6">
-                    <div className="text-center max-w-4xl mx-auto mb-16">
-                        <div className="bg-gradient-to-r from-indigo-600 to-pink-600 bg-clip-text text-transparent font-bold tracking-wider mb-2">AŞAMA 3: BRAND OS</div>
-                        <h2 className="text-4xl md:text-5xl font-bold mb-4">Markanızın Merkezi Sinir Sistemi</h2>
-                        <p className="text-lg text-gray-600">
-                            Lansman bir sondur, ama büyüme sürekli bir yolculuktur. Brand OS, markanızın günlük operasyonlarını yürüten, rakipleri izleyen, içerik üreten ve sizi koruyan akıllı bir işletim sistemidir.
-                        </p>
-                    </div>
-                    
-                    {/* Features Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {features.map((feature, index) => (
-                            <Card key={index} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 shadow-md">
-                                <CardHeader className="pb-3">
-                                    <div className="flex items-center mb-3">
-                                        {feature.icon}
-                                        <h3 className="font-bold text-lg ml-3">{feature.title}</h3>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="pt-0">
-                                    <p className="text-gray-600 text-sm mb-4">{feature.description}</p>
-                                    <div className="pt-3 border-t border-gray-100">
-                                        <h4 className="font-semibold text-gray-900 text-sm mb-1">Faydası Ne?</h4>
-                                        <p className="text-xs text-gray-600 italic">{feature.benefit}</p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
+                        {/* Features */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                            {features.map((feature, index) => (
+                                <Card key={index} className="border-0 shadow-lg">
+                                    <CardContent className="p-6 text-center">
+                                        <div className="flex justify-center mb-4">
+                                            {feature.icon}
+                                        </div>
+                                        <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
+                                        <p className="text-gray-600">{feature.description}</p>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
 
-                    <div className="text-center mt-12">
-                        <Link to="/dashboard">
-                            <Button size="lg" className="bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-700 hover:to-pink-700 text-white font-bold py-4 px-8 rounded-full">
-                                Brand OS'a Geç
-                                <ArrowRight className="ml-2 h-5 w-5" />
-                            </Button>
-                        </Link>
+                        {/* Social Proof */}
+                        <div className="mb-16">
+                            <p className="text-gray-600 mb-8">Binlerce girişimci tarafından güvenle kullanılıyor</p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {testimonials.map((testimonial, index) => (
+                                    <Card key={index} className="border-0 shadow-lg">
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center mb-3">
+                                                {[...Array(testimonial.rating)].map((_, i) => (
+                                                    <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                                                ))}
+                                            </div>
+                                            <p className="text-gray-700 mb-3">"{testimonial.text}"</p>
+                                            <div className="flex items-center">
+                                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                                    <Users className="w-4 h-4 text-blue-600" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-sm">{testimonial.name}</p>
+                                                    <p className="text-gray-500 text-sm">{testimonial.company}</p>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Pricing Preview */}
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 max-w-2xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-4">Tek Paket, Tam Çözüm</h2>
+                            <div className="text-4xl font-bold text-blue-600 mb-2">₺299</div>
+                            <p className="text-gray-600 mb-6">Tek seferlik ödeme, sınırsız kullanım</p>
+                            <div className="space-y-2 text-left">
+                                <div className="flex items-center">
+                                    <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                                    <span>5 farklı logo tasarımı</span>
+                                </div>
+                                <div className="flex items-center">
+                                    <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                                    <span>Tam marka kiti (renk, font, kullanım kılavuzu)</span>
+                                </div>
+                                <div className="flex items-center">
+                                    <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                                    <span>Tüm formatlarda dosyalar (PNG, SVG, PDF)</span>
+                                </div>
+                                <div className="flex items-center">
+                                    <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                                    <span>Kartvizit, antetli kağıt şablonları</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
             {/* Footer */}
-            <footer className="bg-gray-900 text-white py-20">
-                <div className="container mx-auto text-center px-6">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4">Bir Sonraki Büyük Marka Siz Olun.</h2>
-                    <p className="text-gray-400 max-w-2xl mx-auto mb-8">
-                        Fikirden imparatorluğa giden yolda, her adımda yanınızdayız. Sadece bir logo ile başlayın ve markanızın potansiyelini bizimle ortaya çıkarın.
-                    </p>
-                    <Link to="/dashboard">
-                        <Button size="lg" className="bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white font-bold py-4 px-10 rounded-full">
-                            Ücretsiz Başlayın ve Markanızı İnşa Edin
-                        </Button>
-                    </Link>
+            <footer className="border-t border-gray-100 py-12">
+                <div className="container mx-auto px-4">
+                    <div className="text-center">
+                        <div className="flex items-center justify-center space-x-2 mb-4">
+                            <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                <Sparkles className="w-4 h-4 text-white" />
+                            </div>
+                            <span className="text-lg font-bold text-gray-900">Ficonica</span>
+                        </div>
+                        <p className="text-gray-600 mb-4">AI destekli logo ve marka kiti oluşturma platformu</p>
+                        <div className="flex justify-center space-x-6 text-sm text-gray-500">
+                            <a href="#" className="hover:text-blue-600">Gizlilik</a>
+                            <a href="#" className="hover:text-blue-600">Kullanım Şartları</a>
+                            <a href="#" className="hover:text-blue-600">İletişim</a>
+                        </div>
+                    </div>
                 </div>
             </footer>
         </div>
