@@ -6,6 +6,8 @@ import './index.css';
 import LandingPage from './components/LandingPage';
 import LogoCreator from './components/LogoCreator';
 import LogoResults from './components/LogoResults';
+import LogoEditor from './components/LogoEditor';
+import PricingPage from './components/PricingPage';
 import BusinessCardGenerator from './components/BusinessCardGenerator';
 import BrandBookGenerator from './components/BrandBookGenerator';
 import EmailSignatureGenerator from './components/EmailSignatureGenerator';
@@ -323,6 +325,8 @@ function App() {
                     {/* Ficonica MVP Routes */}
                     <Route path="/logo-creator" element={<LogoCreator />} />
                     <Route path="/logo-results" element={<LogoResults />} />
+                    <Route path="/logo-editor" element={<LogoEditor />} />
+                    <Route path="/pricing" element={<PricingPage />} />
                     
                     {/* Dashboard and tools - with sidebar layout */}
                     <Route path="/dashboard" element={<Layout />}>
