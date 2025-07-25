@@ -19,6 +19,17 @@ const LogoResults = () => {
     const [selectedLogo, setSelectedLogo] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    // Farklı fontlar için array
+    const fonts = [
+        'Inter', 'Poppins', 'Roboto', 'Open Sans', 'Montserrat', 
+        'Raleway', 'Lato', 'Source Sans Pro', 'Nunito', 'Ubuntu',
+        'Playfair Display', 'Merriweather', 'Lora', 'Crimson Text', 'Georgia'
+    ];
+
+    const getRandomFont = () => {
+        return fonts[Math.floor(Math.random() * fonts.length)];
+    };
+
     // Logo data - location state'den veya API'den gelecek
     const [logos, setLogos] = useState([]);
 
@@ -170,12 +181,14 @@ const LogoResults = () => {
                                         />
                                     </div>
                                     <div className="flex items-center justify-between mb-2">
-                                        <div>
-                                            <h3 className="font-semibold text-gray-900">{logo.name || 'Logo'}</h3>
-                                            {logo.industry && (
-                                                <p className="text-xs text-gray-500 capitalize">{logo.industry}</p>
-                                            )}
-                                        </div>
+                                                                            <div>
+                                        <h3 className="font-semibold text-gray-900" style={{ fontFamily: getRandomFont() }}>
+                                            {location.state?.formData?.companyName || 'Company Name'}
+                                        </h3>
+                                        {logo.industry && (
+                                            <p className="text-xs text-gray-500 capitalize">{logo.industry}</p>
+                                        )}
+                                    </div>
                                         {selectedLogo?.id === logo.id && (
                                             <CheckCircle className="w-5 h-5 text-blue-600" />
                                         )}
