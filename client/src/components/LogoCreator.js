@@ -40,7 +40,8 @@ const LogoCreator = () => {
             // Eğer Firebase'den logo gelmezse mock verileri kullan
             if (!logos || logos.length === 0) {
                 console.log('⚠️ Firebase\'den logo gelmedi, mock veriler kullanılıyor...');
-                logos = LogoService.getMockLogos('technology');
+                const mockLogos = LogoService.getMockLogos('technology');
+                logos = mockLogos;
             }
 
             navigate('/logo-results', { 

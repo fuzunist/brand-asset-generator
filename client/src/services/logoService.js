@@ -173,8 +173,7 @@ export class LogoService {
             const q = query(
                 logosRef,
                 where('status', '==', 'published'),
-                orderBy('createdAt', 'desc'),
-                limit(limitCount)
+                limit(limitCount * 2) // Daha fazla logo getir
             );
 
             console.log('📋 Firestore sorgusu oluşturuldu');
@@ -200,7 +199,15 @@ export class LogoService {
                 }
             }
 
-            return logos;
+            // Client-side sıralama
+            logos.sort((a, b) => {
+                if (a.createdAt && b.createdAt) {
+                    return b.createdAt.toDate() - a.createdAt.toDate();
+                }
+                return 0;
+            });
+
+            return logos.slice(0, limitCount);
         } catch (error) {
             console.error('Logolar getirilirken hata:', error);
             throw error;
