@@ -14,6 +14,7 @@ const { generateWebsiteReport } = require('./websiteReportGenerator');
 const AdKitGenerator = require('./adKitGenerator');
 const ThoughtLeadershipService = require('./thoughtLeadershipService');
 const setupDatabase = require('./database');
+const documentGeneratorService = require('./documentGenerator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -21,6 +22,13 @@ const { getSentimentSummary, getRecentMentions } = require('./sentimentAnalysisS
 const { scheduleSentimentAnalysis } = require('./sentimentScheduler');
 
 const app = express();
+
+// Generic request logger middleware - to see ALL incoming requests
+app.use((req, res, next) => {
+    console.log(`[Request Logger] Received: ${req.method} ${req.originalUrl}`);
+    next();
+});
+
 const port = 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-and-long-key-that-is-at-least-32-bytes';
 
@@ -933,6 +941,7 @@ app.get('/api/social-kit/generate', brandBookAuthMiddleware, async (req, res) =>
 // Public endpoint to get press kit data by slug
 app.get('/api/public/press-kit/:slug', async (req, res) => {
     const { slug } = req.params;
+    console.log(`[Press Kit] Public request for slug: ${slug}`);
     
     try {
         // Get brand identity by slug
@@ -942,14 +951,19 @@ app.get('/api/public/press-kit/:slug', async (req, res) => {
         );
         
         if (!brandIdentity) {
+            console.warn(`[Press Kit] Public - Slug not found: ${slug}`);
             return res.status(404).json({ message: 'Press kit not found' });
         }
+        
+        console.log(`[Press Kit] Public - Found brand identity for slug ${slug}: ID ${brandIdentity.id}`);
         
         // Get associated assets
         const assets = await db.all(
             'SELECT asset_type, s3_url, label, display_order FROM brand_assets WHERE brand_identity_id = ? ORDER BY display_order, id',
             brandIdentity.id
         );
+        
+        console.log(`[Press Kit] Public - Found ${assets.length} assets for brand ID ${brandIdentity.id}`);
         
         // Format response
         const pressKitData = {
@@ -969,10 +983,11 @@ app.get('/api/public/press-kit/:slug', async (req, res) => {
             logoUrl: brandIdentity.logo_url
         };
         
+        console.log(`[Press Kit] Public - Sending data for slug: ${slug}`);
         res.json(pressKitData);
         
     } catch (error) {
-        console.error('Error fetching press kit:', error);
+        console.error(`[Press Kit] Public - Error fetching press kit for slug ${slug}:`, error);
         res.status(500).json({ message: 'Server error while fetching press kit' });
     }
 });
@@ -980,6 +995,7 @@ app.get('/api/public/press-kit/:slug', async (req, res) => {
 // Get current user's press kit settings
 app.get('/api/press-kit/settings', authMiddleware, async (req, res) => {
     const { accountId } = req.user;
+    console.log(`[Press Kit] Settings - Fetching settings for accountId: ${accountId}`);
     
     try {
         const brandIdentity = await db.get(
@@ -988,6 +1004,7 @@ app.get('/api/press-kit/settings', authMiddleware, async (req, res) => {
         );
         
         if (!brandIdentity) {
+            console.log(`[Press Kit] Settings - No brand identity found for account ${accountId}, creating default.`);
             // Create default brand identity if it doesn't exist
             const account = await db.get('SELECT name FROM accounts WHERE id = ?', accountId);
             const slug = account.name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
@@ -1003,27 +1020,31 @@ app.get('/api/press-kit/settings', authMiddleware, async (req, res) => {
             );
             
             const newBrandIdentity = await db.get('SELECT * FROM brand_identities WHERE id = ?', result.lastID);
+            console.log(`[Press Kit] Settings - Created new brand identity ID ${newBrandIdentity.id} for account ${accountId}.`);
             return res.json({
                 ...newBrandIdentity,
                 pressKitUrl: `http://localhost:3000/press/${newBrandIdentity.press_kit_slug}`
             });
         }
         
+        console.log(`[Press Kit] Settings - Found brand identity ID ${brandIdentity.id} for account ${accountId}.`);
         res.json({
             ...brandIdentity,
             pressKitUrl: `http://localhost:3000/press/${brandIdentity.press_kit_slug}`
         });
         
     } catch (error) {
-        console.error('Error fetching press kit settings:', error);
-        res.status(500).json({ message: 'Server error while fetching press kit settings' });
+        console.error(`[Press Kit] Settings - Error fetching settings for account ${accountId}:`, error);
+        res.status(500).json({ message: 'Server error while fetching press kit settings', error: error.message });
     }
 });
 
 // Update press kit settings
 app.put('/api/press-kit/settings', authMiddleware, async (req, res) => {
     const { accountId } = req.user;
-    const { brand_name, boilerplate, primary_color, secondary_color, accent_color, press_contact_email, logo_url } = req.body;
+    const settingsData = req.body;
+    console.log(`[Press Kit] Settings - Update request for accountId: ${accountId} with data:`, settingsData);
+    const { brand_name, boilerplate, primary_color, secondary_color, accent_color, press_contact_email, logo_url } = settingsData;
     
     try {
         const result = await db.run(
@@ -1035,13 +1056,15 @@ app.put('/api/press-kit/settings', authMiddleware, async (req, res) => {
         );
         
         if (result.changes === 0) {
+            console.warn(`[Press Kit] Settings - Update failed, no record found for account ${accountId}.`);
             return res.status(404).json({ message: 'Press kit not found' });
         }
         
+        console.log(`[Press Kit] Settings - Successfully updated settings for account ${accountId}.`);
         res.json({ message: 'Press kit settings updated successfully' });
         
     } catch (error) {
-        console.error('Error updating press kit settings:', error);
+        console.error(`[Press Kit] Settings - Error updating settings for account ${accountId}:`, error);
         res.status(500).json({ message: 'Server error while updating press kit settings' });
     }
 });
@@ -2148,6 +2171,37 @@ app.get('/api/sentiment/feed', authMiddleware, async (req, res) => {
     }
 });
 
+// Smart Document Generator endpoints
+app.post('/api/documents/proposal', async (req, res) => {
+    try {
+        console.log('Generating proposal with data:', req.body);
+        const buffer = await documentGeneratorService.generateProposal(req.body);
+        res.set({
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'Content-Disposition': 'attachment; filename=proposal.docx'
+        });
+        res.send(buffer);
+    } catch (error) {
+        console.error('Error generating proposal:', error);
+        res.status(500).json({ error: 'Failed to generate proposal' });
+    }
+});
+
+app.post('/api/documents/contract', async (req, res) => {
+    try {
+        console.log('Generating contract with data:', req.body);
+        const buffer = await documentGeneratorService.generateContract(req.body);
+        res.set({
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'Content-Disposition': 'attachment; filename=contract.docx'
+        });
+        res.send(buffer);
+    } catch (error) {
+        console.error('Error generating contract:', error);
+        res.status(500).json({ error: 'Failed to generate contract' });
+    }
+});
+
 // Brand Consistency Audit endpoint
 app.post('/api/audits/consistency', authMiddleware, async (req, res) => {
     console.log('Brand consistency audit request received:', req.body);
@@ -2330,15 +2384,18 @@ app.get('/', (req, res) => {
 async function main() {
     db = await setupDatabase();
     
-    // Initialize Thought Leadership Service
+    // Initialize services
     const thoughtLeadershipService = new ThoughtLeadershipService(db, process.env.OPENAI_API_KEY);
+    
+    // Schedule background jobs with delays to prevent startup conflicts
+    // Thought Leadership cron job
     thoughtLeadershipService.initializeCronJob();
+    
+    // Sentiment Analysis scheduler
+    scheduleSentimentAnalysis(db);
     
     // Make service available to routes
     app.locals.thoughtLeadershipService = thoughtLeadershipService;
-    
-    // Start the sentiment analysis scheduler
-    scheduleSentimentAnalysis(db);
     
     app.listen(port, () => {
         console.log(`Server listening on port ${port}`);

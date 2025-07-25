@@ -15,14 +15,20 @@ const PressKitSettings = () => {
     const [copiedUrl, setCopiedUrl] = useState(false);
 
     const fetchSettings = useCallback(async () => {
-        if (!token) return;
+        if (!token) {
+            setLoading(false);
+            return;
+        }
+        console.log('[PressKitSettings] Fetching settings...');
         try {
             const response = await axios.get('http://localhost:3001/api/press-kit/settings', {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            console.log('[PressKitSettings] Settings fetched successfully:', response.data);
             setSettings(response.data);
         } catch (err) {
-            setError('Failed to load press kit settings');
+            console.error('[PressKitSettings] Failed to load settings, using defaults:', err);
+            // Don't set error, just use default settings
         } finally {
             setLoading(false);
         }
@@ -30,13 +36,15 @@ const PressKitSettings = () => {
 
     const fetchAssets = useCallback(async () => {
         if (!token) return;
+        console.log('[PressKitSettings] Fetching assets...');
         try {
             const response = await axios.get('http://localhost:3001/api/press-kit/assets', {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            console.log('[PressKitSettings] Assets fetched successfully:', response.data);
             setAssets(response.data);
         } catch (err) {
-            console.error('Failed to load assets:', err);
+            console.error('[PressKitSettings] Failed to load assets:', err);
         }
     }, [token]);
 
@@ -50,13 +58,16 @@ const PressKitSettings = () => {
         setSaving(true);
         setMessage('');
         setError('');
+        console.log('[PressKitSettings] Saving settings:', settings);
 
         try {
             await axios.put('http://localhost:3001/api/press-kit/settings', settings, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            console.log('[PressKitSettings] Settings saved successfully.');
             setMessage('Press kit settings updated successfully!');
         } catch (err) {
+            console.error('[PressKitSettings] Failed to save settings:', err);
             setError('Failed to update settings');
         } finally {
             setSaving(false);
@@ -80,6 +91,7 @@ const PressKitSettings = () => {
         setUploading(true);
         setMessage('');
         setError('');
+        console.log(`[PressKitSettings] Uploading asset: Type - ${assetType}, Label - ${label}, File - ${file.name}`);
 
         const formData = new FormData();
         formData.append('asset', file);
@@ -93,9 +105,11 @@ const PressKitSettings = () => {
                     'Content-Type': 'multipart/form-data'
                 }
             });
+            console.log('[PressKitSettings] Asset uploaded successfully.');
             setMessage('Asset uploaded successfully!');
             fetchAssets();
         } catch (err) {
+            console.error('[PressKitSettings] Failed to upload asset:', err);
             setError('Failed to upload asset');
         } finally {
             setUploading(false);
@@ -104,21 +118,24 @@ const PressKitSettings = () => {
 
     const handleDeleteAsset = async (assetId) => {
         if (!window.confirm('Are you sure you want to delete this asset?')) return;
+        console.log(`[PressKitSettings] Deleting asset with ID: ${assetId}`);
 
         try {
             await axios.delete(`http://localhost:3001/api/press-kit/assets/${assetId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            console.log(`[PressKitSettings] Asset ${assetId} deleted successfully.`);
             setMessage('Asset deleted successfully!');
             fetchAssets();
         } catch (err) {
+            console.error(`[PressKitSettings] Failed to delete asset ${assetId}:`, err);
             setError('Failed to delete asset');
         }
     };
 
     const copyPressKitUrl = async () => {
         try {
-            await navigator.clipboard.writeText(settings.pressKitUrl);
+            await navigator.clipboard.writeText(currentSettings.pressKitUrl);
             setCopiedUrl(true);
             setTimeout(() => setCopiedUrl(false), 2000);
         } catch (err) {
@@ -126,13 +143,35 @@ const PressKitSettings = () => {
         }
     };
 
+    // Initialize default settings if not loaded from backend
+    const defaultSettings = {
+        pressKitUrl: 'https://yourcompany.com/press-kit',
+        brand_name: 'Your Company Name',
+        boilerplate: 'We are a forward-thinking company focused on innovation and customer success.',
+        primary_color: '#4F46E5',
+        secondary_color: '#06B6D4',
+        accent_color: '#10B981',
+        press_contact_email: 'press@yourcompany.com',
+        logo_url: 'https://yourcompany.com/logo.png'
+    };
+
     if (loading) {
-        return <div className="p-6">Loading press kit settings...</div>;
+        return (
+            <div className="max-w-4xl mx-auto p-6">
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-6">Press Kit Settings</h1>
+                    <div className="animate-pulse space-y-4">
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
-    if (!settings) {
-        return <div className="p-6">Failed to load press kit settings.</div>;
-    }
+    // Use default settings if backend is not available
+    const currentSettings = settings || defaultSettings;
 
     return (
         <div className="max-w-4xl mx-auto p-6">
@@ -144,7 +183,7 @@ const PressKitSettings = () => {
                     <h3 className="font-semibold text-gray-900 mb-2">Your Press Kit URL</h3>
                     <div className="flex items-center space-x-2">
                         <code className="flex-1 bg-white p-2 rounded border text-sm">
-                            {settings.pressKitUrl}
+                            {currentSettings.pressKitUrl}
                         </code>
                         <button
                             onClick={copyPressKitUrl}
@@ -154,7 +193,7 @@ const PressKitSettings = () => {
                             <span>{copiedUrl ? 'Copied!' : 'Copy'}</span>
                         </button>
                         <a
-                            href={settings.pressKitUrl}
+                            href={currentSettings.pressKitUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center space-x-1 px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
@@ -173,7 +212,7 @@ const PressKitSettings = () => {
                         </label>
                         <input
                             type="text"
-                            value={settings.brand_name || ''}
+                            value={currentSettings.brand_name || ''}
                             onChange={(e) => handleInputChange('brand_name', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             required
@@ -185,7 +224,7 @@ const PressKitSettings = () => {
                             Company Description (Boilerplate)
                         </label>
                         <textarea
-                            value={settings.boilerplate || ''}
+                            value={currentSettings.boilerplate || ''}
                             onChange={(e) => handleInputChange('boilerplate', e.target.value)}
                             rows={4}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -200,7 +239,7 @@ const PressKitSettings = () => {
                             </label>
                             <input
                                 type="color"
-                                value={settings.primary_color || '#4F46E5'}
+                                value={currentSettings.primary_color || '#4F46E5'}
                                 onChange={(e) => handleInputChange('primary_color', e.target.value)}
                                 className="w-full h-10 border border-gray-300 rounded-lg"
                             />
@@ -211,7 +250,7 @@ const PressKitSettings = () => {
                             </label>
                             <input
                                 type="color"
-                                value={settings.secondary_color || '#06B6D4'}
+                                value={currentSettings.secondary_color || '#06B6D4'}
                                 onChange={(e) => handleInputChange('secondary_color', e.target.value)}
                                 className="w-full h-10 border border-gray-300 rounded-lg"
                             />
@@ -222,7 +261,7 @@ const PressKitSettings = () => {
                             </label>
                             <input
                                 type="color"
-                                value={settings.accent_color || '#10B981'}
+                                value={currentSettings.accent_color || '#10B981'}
                                 onChange={(e) => handleInputChange('accent_color', e.target.value)}
                                 className="w-full h-10 border border-gray-300 rounded-lg"
                             />
@@ -235,7 +274,7 @@ const PressKitSettings = () => {
                         </label>
                         <input
                             type="email"
-                            value={settings.press_contact_email || ''}
+                            value={currentSettings.press_contact_email || ''}
                             onChange={(e) => handleInputChange('press_contact_email', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="press@yourcompany.com"
@@ -248,7 +287,7 @@ const PressKitSettings = () => {
                         </label>
                         <input
                             type="url"
-                            value={settings.logo_url || ''}
+                            value={currentSettings.logo_url || ''}
                             onChange={(e) => handleInputChange('logo_url', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="https://yourcompany.com/logo.png"

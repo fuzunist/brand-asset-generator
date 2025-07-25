@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, Outlet } from 'react-rout
 import { AuthProvider, useAuth } from './AuthContext';
 
 import './index.css';
+import LandingPage from './components/LandingPage';
 import BusinessCardGenerator from './components/BusinessCardGenerator';
 import BrandBookGenerator from './components/BrandBookGenerator';
 import EmailSignatureGenerator from './components/EmailSignatureGenerator';
@@ -10,6 +11,8 @@ import EmailTemplateGenerator from './components/EmailTemplateGenerator';
 import LetterheadGenerator from './components/LetterheadGenerator';
 import DocumentGenerator from './components/DocumentGenerator';
 import BrandDetails from './components/BrandDetails';
+import ProgressTracker from './components/ProgressTracker';
+import NextStepCTA from './components/NextStepCTA';
 // import AuthPage from './components/AuthPage';
 import AcceptInvitationPage from './components/AcceptInvitationPage';
 import TeamManagementPage from './components/TeamManagementPage';
@@ -21,6 +24,7 @@ import AdKitGenerator from './components/AdKitGenerator';
 import SentimentAnalysisDashboard from './components/SentimentAnalysisDashboard';
 import ThoughtLeadership from './components/ThoughtLeadership';
 import MicroSurveyDashboard from './components/MicroSurveyDashboard';
+import SmartDocumentGenerator from './components/SmartDocumentGenerator';
 
 // A wrapper for routes that require authentication
 /* const ProtectedRoute = ({ allowedRoles }) => {
@@ -42,18 +46,88 @@ import MicroSurveyDashboard from './components/MicroSurveyDashboard';
 }; */
 
 // The main dashboard content
-const Dashboard = () => (
-    <>
-        <BrandDetails />
-        <BrandBookGenerator />
-        <hr style={{ margin: "40px 0" }} />
-        <BusinessCardGenerator />
-        <hr style={{ margin: "40px 0" }} />
-        <EmailSignatureGenerator />
-        <hr style={{ margin: "40px 0" }} />
-        <LetterheadGenerator />
-    </>
-);
+const Dashboard = () => {
+    const { brandDetails } = useAuth();
+    
+    // Determine current step and completed steps based on user progress
+    const hasLogo = brandDetails?.logoWithText || brandDetails?.logoWithoutText;
+    const hasBrandKit = hasLogo; // Simplified logic - can be enhanced
+    
+    let currentStep = 1;
+    let completedSteps = [];
+    
+    if (hasLogo) {
+        completedSteps.push(1);
+        currentStep = 2;
+    }
+    if (hasBrandKit) {
+        completedSteps.push(2);
+        currentStep = 3;
+    }
+    
+    return (
+        <div className="space-y-8">
+            <ProgressTracker currentStep={currentStep} completedSteps={completedSteps} />
+            
+            {/* Step 1: Logo & Brand Details */}
+            <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 p-6 rounded-lg border-l-4 border-indigo-500">
+                <h2 className="text-2xl font-bold text-indigo-800 mb-2">AŞAMA 1: Logo & Marka Kimliği</h2>
+                <p className="text-indigo-600 mb-4">Markanızın temelini oluşturun</p>
+            </div>
+                        <BrandDetails />
+            
+            <NextStepCTA currentStep={1} hasCompletedCurrentStep={hasLogo} />
+            
+            {/* Step 2: Brand Kit */}
+            <div className="bg-gradient-to-r from-pink-50 to-pink-100 p-6 rounded-lg border-l-4 border-pink-500">
+                <h2 className="text-2xl font-bold text-pink-800 mb-2">AŞAMA 2: Marka Lansman Kitleri</h2>
+                <p className="text-pink-600 mb-4">Markanızı hayata geçirin</p>
+            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <BrandBookGenerator />
+            <BusinessCardGenerator />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <EmailSignatureGenerator />
+            <LetterheadGenerator />
+        </div>
+        
+        <NextStepCTA currentStep={2} hasCompletedCurrentStep={hasBrandKit} />
+        
+        {/* Step 3: Brand OS Features */}
+        <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-6 rounded-lg border-l-4 border-purple-500">
+            <h2 className="text-2xl font-bold text-purple-800 mb-2">AŞAMA 3: Brand OS Özellikleri</h2>
+            <p className="text-purple-600 mb-4">Markanızın sürekli büyümesi için akıllı araçlar</p>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="bg-white p-6 rounded-lg shadow-md border">
+                <h3 className="text-lg font-semibold mb-3">Hızlı Erişim</h3>
+                <div className="space-y-2">
+                    <Link to="/dashboard/ad-kit" className="block text-blue-600 hover:text-blue-800">→ Reklam Kiti Oluştur</Link>
+                    <Link to="/dashboard/email-generator" className="block text-blue-600 hover:text-blue-800">→ E-posta Şablonları</Link>
+                    <Link to="/dashboard/document-generator" className="block text-blue-600 hover:text-blue-800">→ Akıllı Dokümanlar</Link>
+                </div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md border">
+                <h3 className="text-lg font-semibold mb-3">Analiz & İzleme</h3>
+                <div className="space-y-2">
+                    <Link to="/dashboard/sentiment-analysis" className="block text-blue-600 hover:text-blue-800">→ Algı Analizi</Link>
+                    <Link to="/dashboard/website-audit" className="block text-blue-600 hover:text-blue-800">→ Web Sitesi Raporu</Link>
+                    <Link to="/dashboard/brand-consistency" className="block text-blue-600 hover:text-blue-800">→ Marka Tutarlılığı</Link>
+                </div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md border">
+                <h3 className="text-lg font-semibold mb-3">İçerik & Büyüme</h3>
+                <div className="space-y-2">
+                    <Link to="/dashboard/thought-leadership" className="block text-blue-600 hover:text-blue-800">→ Düşünce Liderliği</Link>
+                    <Link to="/dashboard/micro-survey" className="block text-blue-600 hover:text-blue-800">→ Mikro Anketler</Link>
+                    <Link to="/dashboard/press-kit" className="block text-blue-600 hover:text-blue-800">→ Basın Kiti</Link>
+                </div>
+            </div>
+        </div>
+    </div>
+    );
+};
 
 // Main layout with sidebar navigation
 const Layout = () => {
@@ -65,7 +139,8 @@ const Layout = () => {
             <div className="w-64 bg-white shadow-lg border-r border-gray-200">
                 {/* Header */}
                 <div className="p-6 border-b border-gray-200">
-                    <h1 className="text-xl font-bold text-gray-800">Brand Asset Generator</h1>
+                    <h1 className="text-xl font-bold text-gray-800">Brand OS</h1>
+                    <p className="text-sm text-gray-600 mt-1">Markanızın İşletim Sistemi</p>
                 </div>
 
                 {/* Navigation */}
@@ -73,7 +148,7 @@ const Layout = () => {
                     {user ? (
                         <div className="px-4 space-y-2">
                             <Link 
-                                to="/" 
+                                to="/dashboard" 
                                 className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
                             >
                                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,7 +159,7 @@ const Layout = () => {
                             </Link>
                             
                             <Link 
-                                to="/brand-consistency" 
+                                to="/dashboard/brand-consistency" 
                                 className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
                             >
                                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +169,7 @@ const Layout = () => {
                             </Link>
                             
                             <Link 
-                                to="/website-audit" 
+                                to="/dashboard/website-audit" 
                                 className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
                             >
                                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,7 +179,7 @@ const Layout = () => {
                             </Link>
                             
                             <Link 
-                                to="/press-kit" 
+                                to="/dashboard/press-kit" 
                                 className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
                             >
                                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,7 +189,7 @@ const Layout = () => {
                             </Link>
                             
                             <Link 
-                                to="/email-generator" 
+                                to="/dashboard/email-generator" 
                                 className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
                             >
                                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,7 +199,7 @@ const Layout = () => {
                             </Link>
                             
                             <Link 
-                                to="/document-generator" 
+                                to="/dashboard/document-generator" 
                                 className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
                             >
                                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,7 +209,7 @@ const Layout = () => {
                             </Link>
                             
                             <Link 
-                                to="/ad-kit" 
+                                to="/dashboard/ad-kit" 
                                 className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
                             >
                                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,7 +219,7 @@ const Layout = () => {
                             </Link>
                             
                             <Link 
-                                to="/sentiment-analysis" 
+                                to="/dashboard/sentiment-analysis" 
                                 className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
                             >
                                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,7 +229,7 @@ const Layout = () => {
                             </Link>
                             
                             <Link 
-                                to="/thought-leadership" 
+                                to="/dashboard/thought-leadership" 
                                 className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
                             >
                                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,7 +239,7 @@ const Layout = () => {
                             </Link>
                             
                             <Link 
-                                to="/micro-survey" 
+                                to="/dashboard/micro-survey" 
                                 className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
                             >
                                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,9 +248,19 @@ const Layout = () => {
                                 Micro Survey
                             </Link>
                             
+                            <Link 
+                                to="/dashboard/smart-documents" 
+                                className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                            >
+                                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Smart Documents
+                            </Link>
+                            
                             {user.role === 'owner' && (
                                 <Link 
-                                    to="/team" 
+                                    to="/dashboard/team" 
                                     className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors"
                                 >
                                     <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,33 +315,27 @@ function App() {
         <AuthProvider>
             <Router>
                 <Routes>
-                    <Route path="/" element={<Layout />}>
-                        {/* Public routes */}
-                        {/* <Route path="login" element={<AuthPage />} /> */}
-                        <Route path="accept-invitation" element={<AcceptInvitationPage />} />
-                        
-                        {/* Protected routes */}
-                        {/* <Route element={<ProtectedRoute />}> */}
-                            {/* Dashboard is the default protected route */}
-                            <Route index element={<Dashboard />} />
-                            <Route path="brand-consistency" element={<BrandConsistencyAuditor />} />
-                            <Route path="website-audit" element={<WebsiteReportGenerator />} />
-                            <Route path="press-kit" element={<PressKitSettings />} />
-                            <Route path="email-generator" element={<EmailTemplateGenerator />} />
-                            <Route path="document-generator" element={<DocumentGenerator />} />
-                            <Route path="ad-kit" element={<AdKitGenerator />} />
-                            <Route path="sentiment-analysis" element={<SentimentAnalysisDashboard />} />
-                            <Route path="thought-leadership" element={<ThoughtLeadership />} />
-                            <Route path="micro-survey" element={<MicroSurveyDashboard />} />
-                        {/* </Route> */}
-
-                        {/* Owner-only routes */}
-                        {/* <Route element={<ProtectedRoute allowedRoles={['owner']} />}> */}
-                           <Route path="team" element={<TeamManagementPage />} />
-                        {/* </Route> */}
+                    {/* Public landing page */}
+                    <Route path="/" element={<LandingPage />} />
+                    
+                    {/* Dashboard and tools - with sidebar layout */}
+                    <Route path="/dashboard" element={<Layout />}>
+                        <Route index element={<Dashboard />} />
+                        <Route path="brand-consistency" element={<BrandConsistencyAuditor />} />
+                        <Route path="website-audit" element={<WebsiteReportGenerator />} />
+                        <Route path="press-kit" element={<PressKitSettings />} />
+                        <Route path="email-generator" element={<EmailTemplateGenerator />} />
+                        <Route path="document-generator" element={<DocumentGenerator />} />
+                        <Route path="ad-kit" element={<AdKitGenerator />} />
+                        <Route path="sentiment-analysis" element={<SentimentAnalysisDashboard />} />
+                        <Route path="thought-leadership" element={<ThoughtLeadership />} />
+                        <Route path="micro-survey" element={<MicroSurveyDashboard />} />
+                        <Route path="smart-documents" element={<SmartDocumentGenerator />} />
+                        <Route path="team" element={<TeamManagementPage />} />
                     </Route>
                     
-                    {/* Public press kit route - outside of Layout */}
+                    {/* Public routes */}
+                    <Route path="accept-invitation" element={<AcceptInvitationPage />} />
                     <Route path="/press/:slug" element={<PressKitPage />} />
                 </Routes>
             </Router>
