@@ -28,9 +28,10 @@ const LogoCreator = () => {
     });
 
     const industries = [
-        'Teknoloji', 'Sağlık', 'Eğitim', 'Finans', 'E-ticaret', 
-        'Gıda & İçecek', 'Moda', 'Spor', 'Sanat', 'Hukuk',
-        'Mimarlık', 'Danışmanlık', 'Üretim', 'Turizm', 'Diğer'
+        'Tarım', 'Otomotiv', 'Güzellik', 'İnşaat', 'Pazarlama', 
+        'Hukuk', 'Emlak', 'Üretim', 'Teknoloji', 'Sağlık', 
+        'Eğitim', 'Finans', 'E-ticaret', 'Gıda & İçecek', 
+        'Moda', 'Spor', 'Sanat', 'Danışmanlık', 'Turizm', 'Diğer'
     ];
 
     const colorOptions = [
@@ -74,24 +75,34 @@ const LogoCreator = () => {
     const handleGenerate = async () => {
         setIsGenerating(true);
         try {
+            console.log('🔥 Firebase bağlantısı test ediliyor...');
+            console.log('📝 Form verileri:', formData);
+            
             // Firebase'den logoları getir
             const { LogoService } = await import('../services/logoService');
             
             let logos;
             if (formData.industry) {
+                console.log(`🏭 Sektöre göre logo aranıyor: ${formData.industry}`);
                 // Sektöre göre logoları getir
                 logos = await LogoService.getLogosByIndustry(formData.industry, 10);
             } else if (formData.keywords) {
+                console.log(`🔍 Anahtar kelimelere göre logo aranıyor: ${formData.keywords}`);
                 // Anahtar kelimelere göre logoları getir
                 const keywords = formData.keywords.split(',').map(k => k.trim());
                 logos = await LogoService.getLogosByKeywords(keywords, 10);
             } else {
+                console.log('📋 Tüm yayınlanmış logolar getiriliyor...');
                 // Tüm logoları getir
                 logos = await LogoService.getAllPublishedLogos(10);
             }
 
+            console.log('📊 Firebase\'den gelen logo sayısı:', logos?.length || 0);
+            console.log('🎨 Logolar:', logos);
+
             // Eğer Firebase'den logo gelmezse mock verileri kullan
             if (!logos || logos.length === 0) {
+                console.log('⚠️ Firebase\'den logo gelmedi, mock veriler kullanılıyor...');
                 logos = LogoService.getMockLogos(formData.industry || 'teknoloji');
             }
 
@@ -102,7 +113,8 @@ const LogoCreator = () => {
                 } 
             });
         } catch (error) {
-            console.error('Logo getirme hatası:', error);
+            console.error('❌ Logo getirme hatası:', error);
+            console.error('🔍 Hata detayları:', error.message);
             // Hata durumunda mock verileri kullan
             const { LogoService } = await import('../services/logoService');
             const logos = LogoService.getMockLogos(formData.industry || 'teknoloji');
@@ -151,7 +163,7 @@ const LogoCreator = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Sektör *
+                                    Sektör (Opsiyonel)
                                 </label>
                                 <select
                                     value={formData.industry}

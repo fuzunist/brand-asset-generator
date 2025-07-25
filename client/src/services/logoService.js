@@ -20,37 +20,70 @@ export class LogoService {
      */
     static async getLogosByIndustry(industry, limitCount = 10) {
         try {
+            console.log(`🔍 Sektöre göre logo aranıyor: ${industry}`);
+            console.log(`🏭 Aranan sektör: ${industry.toLowerCase()}`);
+            
             const logosRef = collection(db, 'logos');
+            // Tüm logoları getir, client-side filtreleme yap
             const q = query(
                 logosRef,
                 where('status', '==', 'published'),
-                where('tags', 'array-contains', industry.toLowerCase()),
-                orderBy('createdAt', 'desc'),
-                limit(limitCount)
+                limit(limitCount * 2) // Daha fazla logo getir
             );
 
+            console.log('📋 Firestore sorgusu oluşturuldu');
             const querySnapshot = await getDocs(q);
+            console.log(`📊 Sorgu sonucu: ${querySnapshot.docs.length} doküman bulundu`);
+            
             const logos = [];
 
             for (const doc of querySnapshot.docs) {
                 const logoData = doc.data();
-                try {
-                    // PNG dosyasının download URL'ini al
-                    const pngRef = ref(storage, logoData.storagePath_png_source);
-                    const pngUrl = await getDownloadURL(pngRef);
+                console.log(`📄 Logo dokümanı: ${doc.id}`, logoData);
+                
+                // Client-side filtreleme - sektör eşleşmesi veya benzer tag'ler
+                const logoTags = logoData.tags || [];
+                const hasMatchingIndustry = logoTags.some(tag => 
+                    tag.toLowerCase() === industry.toLowerCase() ||
+                    tag.toLowerCase().includes(industry.toLowerCase()) ||
+                    industry.toLowerCase().includes(tag.toLowerCase())
+                );
+                
+                // Eğer sektör eşleşmesi yoksa, benzer tag'leri kontrol et
+                const hasSimilarTags = !hasMatchingIndustry && logoTags.some(tag => {
+                    const similarTags = {
+                        'teknoloji': ['tech', 'digital', 'innovation', 'modern', 'future'],
+                        'tarım': ['agriculture', 'farming', 'nature', 'organic', 'growth'],
+                        'sağlık': ['health', 'medical', 'care', 'wellness', 'healing'],
+                        'eğitim': ['education', 'learning', 'school', 'academic', 'knowledge']
+                    };
+                    
+                    const industrySimilar = similarTags[industry.toLowerCase()] || [];
+                    return industrySimilar.includes(tag.toLowerCase());
+                });
+                
+                if (hasMatchingIndustry || hasSimilarTags) {
+                    try {
+                        // PNG dosyasının download URL'ini al
+                        const pngRef = ref(storage, logoData.storagePath_png_source);
+                        const pngUrl = await getDownloadURL(pngRef);
+                        console.log(`✅ PNG URL alındı: ${pngUrl}`);
 
-                    logos.push({
-                        id: doc.id,
-                        ...logoData,
-                        pngUrl,
-                        previewUrl: pngUrl // PNG'yi preview olarak kullan
-                    });
-                } catch (error) {
-                    console.error(`PNG URL alınamadı: ${doc.id}`, error);
-                    // Hata durumunda bu logoyu atla
+                        logos.push({
+                            id: doc.id,
+                            ...logoData,
+                            pngUrl,
+                            previewUrl: pngUrl // PNG'yi preview olarak kullan
+                        });
+                    } catch (error) {
+                        console.error(`❌ PNG URL alınamadı: ${doc.id}`, error);
+                        console.error(`🔍 Storage path: ${logoData.storagePath_png_source}`);
+                        // Hata durumunda bu logoyu atla
+                    }
                 }
             }
 
+            console.log(`🎨 Toplam ${logos.length} logo başarıyla yüklendi`);
             return logos;
         } catch (error) {
             console.error('Logolar getirilirken hata:', error);
@@ -119,6 +152,8 @@ export class LogoService {
      */
     static async getAllPublishedLogos(limitCount = 20) {
         try {
+            console.log('📋 Tüm yayınlanmış logolar getiriliyor...');
+            
             const logosRef = collection(db, 'logos');
             const q = query(
                 logosRef,
@@ -127,7 +162,10 @@ export class LogoService {
                 limit(limitCount)
             );
 
+            console.log('📋 Firestore sorgusu oluşturuldu');
             const querySnapshot = await getDocs(q);
+            console.log(`📊 Sorgu sonucu: ${querySnapshot.docs.length} doküman bulundu`);
+            
             const logos = [];
 
             for (const doc of querySnapshot.docs) {
@@ -199,8 +237,8 @@ export class LogoService {
                 industry: industry,
                 status: 'published',
                 createdAt: new Date(),
-                previewUrl: 'https://via.placeholder.com/300x200/3B82F6/FFFFFF?text=Logo+1',
-                pngUrl: 'https://via.placeholder.com/300x200/3B82F6/FFFFFF?text=Logo+1'
+                previewUrl: 'https://picsum.photos/300/200?random=1',
+                pngUrl: 'https://picsum.photos/300/200?random=1'
             },
             {
                 id: '2',
@@ -210,8 +248,8 @@ export class LogoService {
                 industry: industry,
                 status: 'published',
                 createdAt: new Date(),
-                previewUrl: 'https://via.placeholder.com/300x200/10B981/FFFFFF?text=Logo+2',
-                pngUrl: 'https://via.placeholder.com/300x200/10B981/FFFFFF?text=Logo+2'
+                previewUrl: 'https://picsum.photos/300/200?random=2',
+                pngUrl: 'https://picsum.photos/300/200?random=2'
             },
             {
                 id: '3',
@@ -221,8 +259,8 @@ export class LogoService {
                 industry: industry,
                 status: 'published',
                 createdAt: new Date(),
-                previewUrl: 'https://via.placeholder.com/300x200/8B5CF6/FFFFFF?text=Logo+3',
-                pngUrl: 'https://via.placeholder.com/300x200/8B5CF6/FFFFFF?text=Logo+3'
+                previewUrl: 'https://picsum.photos/300/200?random=3',
+                pngUrl: 'https://picsum.photos/300/200?random=3'
             },
             {
                 id: '4',
@@ -232,8 +270,8 @@ export class LogoService {
                 industry: industry,
                 status: 'published',
                 createdAt: new Date(),
-                previewUrl: 'https://via.placeholder.com/300x200/F97316/FFFFFF?text=Logo+4',
-                pngUrl: 'https://via.placeholder.com/300x200/F97316/FFFFFF?text=Logo+4'
+                previewUrl: 'https://picsum.photos/300/200?random=4',
+                pngUrl: 'https://picsum.photos/300/200?random=4'
             },
             {
                 id: '5',
@@ -243,8 +281,8 @@ export class LogoService {
                 industry: industry,
                 status: 'published',
                 createdAt: new Date(),
-                previewUrl: 'https://via.placeholder.com/300x200/EC4899/FFFFFF?text=Logo+5',
-                pngUrl: 'https://via.placeholder.com/300x200/EC4899/FFFFFF?text=Logo+5'
+                previewUrl: 'https://picsum.photos/300/200?random=5',
+                pngUrl: 'https://picsum.photos/300/200?random=5'
             }
         ];
 
