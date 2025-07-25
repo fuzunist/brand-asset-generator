@@ -3,12 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
     Sparkles, 
     Palette,
-    Type,
     Download,
     CheckCircle,
     Star,
     Users,
-    Zap,
     ArrowRight,
     Play
 } from 'lucide-react';
@@ -85,9 +83,9 @@ const LandingPage = () => {
                             <span className="text-xl font-bold text-gray-900">Ficonica</span>
                         </div>
                         <nav className="hidden md:flex items-center space-x-8">
-                            <a href="#features" className="text-gray-600 hover:text-blue-600">Özellikler</a>
-                            <a href="#pricing" className="text-gray-600 hover:text-blue-600">Fiyatlandırma</a>
-                            <a href="#faq" className="text-gray-600 hover:text-blue-600">SSS</a>
+                            <button className="text-gray-600 hover:text-blue-600">Özellikler</button>
+                            <button className="text-gray-600 hover:text-blue-600">Fiyatlandırma</button>
+                            <button className="text-gray-600 hover:text-blue-600">SSS</button>
                             <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">Giriş Yap</Link>
                         </nav>
                     </div>
@@ -231,9 +229,9 @@ const LandingPage = () => {
                         </div>
                         <p className="text-gray-600 mb-4">AI destekli logo ve marka kiti oluşturma platformu</p>
                         <div className="flex justify-center space-x-6 text-sm text-gray-500">
-                            <a href="#" className="hover:text-blue-600">Gizlilik</a>
-                            <a href="#" className="hover:text-blue-600">Kullanım Şartları</a>
-                            <a href="#" className="hover:text-blue-600">İletişim</a>
+                            <button className="hover:text-blue-600">Gizlilik</button>
+                            <button className="hover:text-blue-600">Kullanım Şartları</button>
+                            <button className="hover:text-blue-600">İletişim</button>
                         </div>
                     </div>
                 </div>

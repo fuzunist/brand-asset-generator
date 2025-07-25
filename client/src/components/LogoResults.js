@@ -19,58 +19,58 @@ const LogoResults = () => {
     const [selectedLogo, setSelectedLogo] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Mock logo data - gerçek uygulamada API'den gelecek
+    // Logo data - location state'den veya API'den gelecek
     const [logos, setLogos] = useState([]);
 
     useEffect(() => {
-        // Simulate API call
-        setTimeout(() => {
-            const mockLogos = [
-                {
-                    id: 1,
-                    name: 'Modern Minimalist',
-                    preview: 'https://via.placeholder.com/300x200/3B82F6/FFFFFF?text=Logo+1',
-                    description: 'Temiz ve modern tasarım',
-                    colors: ['#3B82F6', '#1E40AF'],
-                    style: 'Modern'
-                },
-                {
-                    id: 2,
-                    name: 'Classic Professional',
-                    preview: 'https://via.placeholder.com/300x200/10B981/FFFFFF?text=Logo+2',
-                    description: 'Geleneksel ve güvenilir',
-                    colors: ['#10B981', '#059669'],
-                    style: 'Klasik'
-                },
-                {
-                    id: 3,
-                    name: 'Creative Bold',
-                    preview: 'https://via.placeholder.com/300x200/8B5CF6/FFFFFF?text=Logo+3',
-                    description: 'Yaratıcı ve dikkat çekici',
-                    colors: ['#8B5CF6', '#7C3AED'],
-                    style: 'Yaratıcı'
-                },
-                {
-                    id: 4,
-                    name: 'Tech Future',
-                    preview: 'https://via.placeholder.com/300x200/F97316/FFFFFF?text=Logo+4',
-                    description: 'Teknolojik ve gelecekçi',
-                    colors: ['#F97316', '#EA580C'],
-                    style: 'Teknolojik'
-                },
-                {
-                    id: 5,
-                    name: 'Elegant Simple',
-                    preview: 'https://via.placeholder.com/300x200/EC4899/FFFFFF?text=Logo+5',
-                    description: 'Zarif ve basit',
-                    colors: ['#EC4899', '#DB2777'],
-                    style: 'Zarif'
+        const loadLogos = async () => {
+            try {
+                // Önce location state'den logo verilerini kontrol et
+                if (location.state?.logos && location.state.logos.length > 0) {
+                    setLogos(location.state.logos);
+                    setIsLoading(false);
+                    return;
                 }
-            ];
-            setLogos(mockLogos);
-            setIsLoading(false);
-        }, 2000);
-    }, []);
+
+                // Eğer location state'de logo yoksa, form verilerine göre getir
+                if (location.state?.formData) {
+                    const { LogoService } = await import('../services/logoService');
+                    
+                    let fetchedLogos;
+                    if (location.state.formData.industry) {
+                        fetchedLogos = await LogoService.getLogosByIndustry(location.state.formData.industry, 10);
+                    } else if (location.state.formData.keywords) {
+                        const keywords = location.state.formData.keywords.split(',').map(k => k.trim());
+                        fetchedLogos = await LogoService.getLogosByKeywords(keywords, 10);
+                    } else {
+                        fetchedLogos = await LogoService.getAllPublishedLogos(10);
+                    }
+
+                    // Eğer Firebase'den logo gelmezse mock verileri kullan
+                    if (!fetchedLogos || fetchedLogos.length === 0) {
+                        fetchedLogos = LogoService.getMockLogos(location.state.formData.industry || 'teknoloji');
+                    }
+
+                    setLogos(fetchedLogos);
+                } else {
+                    // Hiçbir veri yoksa mock logoları göster
+                    const { LogoService } = await import('../services/logoService');
+                    const mockLogos = LogoService.getMockLogos('teknoloji');
+                    setLogos(mockLogos);
+                }
+            } catch (error) {
+                console.error('Logo yükleme hatası:', error);
+                // Hata durumunda mock verileri kullan
+                const { LogoService } = await import('../services/logoService');
+                const mockLogos = LogoService.getMockLogos('teknoloji');
+                setLogos(mockLogos);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadLogos();
+    }, [location.state]);
 
     const handleLogoSelect = (logo) => {
         setSelectedLogo(logo);
@@ -164,7 +164,7 @@ const LogoResults = () => {
                                 <CardContent className="p-6">
                                     <div className="aspect-video bg-gray-100 rounded-lg mb-4 overflow-hidden">
                                         <img
-                                            src={logo.preview}
+                                            src={logo.previewUrl || logo.preview}
                                             alt={logo.name}
                                             className="w-full h-full object-cover"
                                         />
@@ -177,13 +177,25 @@ const LogoResults = () => {
                                     </div>
                                     <p className="text-sm text-gray-600 mb-3">{logo.description}</p>
                                     <div className="flex items-center space-x-2">
-                                        {logo.colors.map((color, index) => (
-                                            <div
-                                                key={index}
-                                                className="w-4 h-4 rounded-full border border-gray-200"
-                                                style={{ backgroundColor: color }}
-                                            ></div>
-                                        ))}
+                                        {logo.colors ? (
+                                            logo.colors.map((color, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="w-4 h-4 rounded-full border border-gray-200"
+                                                    style={{ backgroundColor: color }}
+                                                ></div>
+                                            ))
+                                        ) : (
+                                            // Eğer colors yoksa, tags'dan renk çıkar
+                                            logo.tags?.slice(0, 3).map((tag, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full"
+                                                >
+                                                    {tag}
+                                                </div>
+                                            ))
+                                        )}
                                     </div>
                                 </CardContent>
                             </Card>

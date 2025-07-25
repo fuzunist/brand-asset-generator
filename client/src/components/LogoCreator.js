@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
     ArrowLeft, 
@@ -12,7 +12,6 @@ import {
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
-import { Card, CardContent } from './ui/card';
 
 const LogoCreator = () => {
     const location = useLocation();
@@ -74,11 +73,49 @@ const LogoCreator = () => {
 
     const handleGenerate = async () => {
         setIsGenerating(true);
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            // Firebase'den logoları getir
+            const { LogoService } = await import('../services/logoService');
+            
+            let logos;
+            if (formData.industry) {
+                // Sektöre göre logoları getir
+                logos = await LogoService.getLogosByIndustry(formData.industry, 10);
+            } else if (formData.keywords) {
+                // Anahtar kelimelere göre logoları getir
+                const keywords = formData.keywords.split(',').map(k => k.trim());
+                logos = await LogoService.getLogosByKeywords(keywords, 10);
+            } else {
+                // Tüm logoları getir
+                logos = await LogoService.getAllPublishedLogos(10);
+            }
+
+            // Eğer Firebase'den logo gelmezse mock verileri kullan
+            if (!logos || logos.length === 0) {
+                logos = LogoService.getMockLogos(formData.industry || 'teknoloji');
+            }
+
+            navigate('/logo-results', { 
+                state: { 
+                    formData,
+                    logos 
+                } 
+            });
+        } catch (error) {
+            console.error('Logo getirme hatası:', error);
+            // Hata durumunda mock verileri kullan
+            const { LogoService } = await import('../services/logoService');
+            const logos = LogoService.getMockLogos(formData.industry || 'teknoloji');
+            
+            navigate('/logo-results', { 
+                state: { 
+                    formData,
+                    logos 
+                } 
+            });
+        } finally {
             setIsGenerating(false);
-            navigate('/logo-results', { state: { formData } });
-        }, 3000);
+        }
     };
 
     const renderStep = () => {
