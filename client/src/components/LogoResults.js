@@ -141,11 +141,11 @@ const LogoResults = () => {
                     {/* Header */}
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                            {location.state?.formData?.companyName} için Logo Tasarımları
+                            Logo Designs for {location.state?.formData?.companyName}
                         </h1>
                         <p className="text-gray-600 max-w-2xl mx-auto">
-                            Yapay zeka sizin için 5 farklı logo tasarımı oluşturdu. 
-                            Beğendiğiniz tasarımı seçin ve marka kitinizi oluşturun.
+                            AI has created 5 different logo designs for you. 
+                            Choose your favorite design and create your brand kit.
                         </p>
                     </div>
 
@@ -214,11 +214,11 @@ const LogoResults = () => {
                                 <div className="flex items-center space-x-2">
                                     <Button variant="outline" size="sm">
                                         <Heart className="w-4 h-4 mr-2" />
-                                        Beğen
+                                        Like
                                     </Button>
                                     <Button variant="outline" size="sm">
                                         <Share2 className="w-4 h-4 mr-2" />
-                                        Paylaş
+                                        Share
                                     </Button>
                                 </div>
                             </div>
@@ -229,7 +229,7 @@ const LogoResults = () => {
                                     className="flex items-center"
                                 >
                                     <Edit3 className="w-4 h-4 mr-2" />
-                                    Düzenle
+                                    Edit
                                 </Button>
                                 <Button
                                     onClick={handleDownload}
@@ -237,14 +237,14 @@ const LogoResults = () => {
                                     className="flex items-center"
                                 >
                                     <Download className="w-4 h-4 mr-2" />
-                                    Önizleme İndir
+                                    Download Preview
                                 </Button>
                                 <Button
                                     onClick={handlePurchase}
                                     className="flex items-center bg-blue-600 hover:bg-blue-700"
                                 >
                                     <Sparkles className="w-4 h-4 mr-2" />
-                                    Marka Kitini Satın Al
+                                    Purchase Brand Kit
                                     <ArrowRight className="w-4 h-4 ml-2" />
                                 </Button>
                             </div>

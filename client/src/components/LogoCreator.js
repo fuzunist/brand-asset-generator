@@ -28,10 +28,10 @@ const LogoCreator = () => {
     });
 
     const industries = [
-        'Tarım', 'Otomotiv', 'Güzellik', 'İnşaat', 'Pazarlama', 
-        'Hukuk', 'Emlak', 'Üretim', 'Teknoloji', 'Sağlık', 
-        'Eğitim', 'Finans', 'E-ticaret', 'Gıda & İçecek', 
-        'Moda', 'Spor', 'Sanat', 'Danışmanlık', 'Turizm', 'Diğer'
+        'Agriculture', 'Automotive', 'Beauty', 'Construction', 'Marketing', 
+        'Legal', 'Real Estate', 'Manufacturing', 'Technology', 'Healthcare', 
+        'Education', 'Finance', 'E-commerce', 'Food & Beverage', 
+        'Fashion', 'Sports', 'Art', 'Consulting', 'Tourism', 'Other'
     ];
 
     const colorOptions = [
@@ -135,42 +135,42 @@ const LogoCreator = () => {
             case 1:
                 return (
                     <div className="max-w-2xl mx-auto">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-6">Şirket Bilgileri</h2>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-6">Company Information</h2>
                         <div className="space-y-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Şirket Adı *
+                                    Company Name *
                                 </label>
                                 <Input
                                     type="text"
                                     value={formData.companyName}
                                     onChange={(e) => handleInputChange('companyName', e.target.value)}
-                                    placeholder="Şirket adınızı girin"
+                                    placeholder="Enter your company name"
                                     className="text-lg py-3"
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Slogan (Opsiyonel)
+                                    Slogan (Optional)
                                 </label>
                                 <Input
                                     type="text"
                                     value={formData.slogan}
                                     onChange={(e) => handleInputChange('slogan', e.target.value)}
-                                    placeholder="Örn: Geleceği Şekillendiriyoruz"
+                                    placeholder="e.g., Shaping the Future"
                                     className="py-3"
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Sektör (Opsiyonel)
+                                    Industry (Optional)
                                 </label>
                                 <select
                                     value={formData.industry}
                                     onChange={(e) => handleInputChange('industry', e.target.value)}
                                     className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 >
-                                    <option value="">Sektörünüzü seçin</option>
+                                    <option value="">Select your industry</option>
                                     {industries.map(industry => (
                                         <option key={industry} value={industry}>{industry}</option>
                                     ))}

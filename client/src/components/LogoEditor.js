@@ -105,7 +105,7 @@ const LogoEditor = () => {
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Logo yükleniyor...</p>
+                                                    <p className="text-gray-600">Loading logo...</p>
                 </div>
             </div>
         );
@@ -127,7 +127,7 @@ const LogoEditor = () => {
                                 <span>Geri</span>
                             </Button>
                             <div className="h-6 w-px bg-gray-300"></div>
-                            <h1 className="text-lg font-semibold text-gray-900">Logo Düzenle</h1>
+                            <h1 className="text-lg font-semibold text-gray-900">Edit Logo</h1>
                         </div>
                         <div className="flex items-center space-x-3">
                             <Button variant="outline" onClick={handleDownload} disabled={isLoading}>
@@ -136,11 +136,11 @@ const LogoEditor = () => {
                                 ) : (
                                     <Download className="w-4 h-4" />
                                 )}
-                                <span className="ml-2">İndir</span>
+                                <span className="ml-2">Download</span>
                             </Button>
                             <Button onClick={handlePurchase} className="bg-blue-600 hover:bg-blue-700">
                                 <Sparkles className="w-4 h-4 mr-2" />
-                                Satın Al
+                                Purchase
                             </Button>
                         </div>
                     </div>
@@ -155,7 +155,7 @@ const LogoEditor = () => {
                             <CardContent className="p-6">
                                 <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                                     <Palette className="w-5 h-5 mr-2" />
-                                    Renk Ayarları
+                                    Color Settings
                                 </h2>
                                 <div className="grid grid-cols-4 gap-3">
                                     {colorOptions.map((color) => (
@@ -179,11 +179,11 @@ const LogoEditor = () => {
                             <CardContent className="p-6">
                                 <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                                     <Type className="w-5 h-5 mr-2" />
-                                    Tipografi
+                                    Typography
                                 </h2>
                                 <div className="space-y-4">
                                     <div>
-                                        <Label htmlFor="fontFamily">Font Ailesi</Label>
+                                        <Label htmlFor="fontFamily">Font Family</Label>
                                         <select
                                             id="fontFamily"
                                             value={customizations.fontFamily}
@@ -198,7 +198,7 @@ const LogoEditor = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        <Label htmlFor="fontSize">Font Boyutu</Label>
+                                        <Label htmlFor="fontSize">Font Size</Label>
                                         <Input
                                             id="fontSize"
                                             type="range"
@@ -220,7 +220,7 @@ const LogoEditor = () => {
                             <CardContent className="p-6">
                                 <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                                     <Eye className="w-5 h-5 mr-2" />
-                                    Mockup Görünümü
+                                    Mockup View
                                 </h2>
                                 <div className="space-y-3">
                                     {Object.entries(mockups).map(([key, value]) => (
@@ -255,7 +255,7 @@ const LogoEditor = () => {
                     <div className="space-y-6">
                         <Card>
                             <CardContent className="p-6">
-                                <h2 className="text-lg font-semibold text-gray-900 mb-4">Canlı Önizleme</h2>
+                                <h2 className="text-lg font-semibold text-gray-900 mb-4">Live Preview</h2>
                                 <div className="bg-white border border-gray-200 rounded-lg p-6 min-h-[400px] flex items-center justify-center">
                                     <div 
                                         className="text-center"
@@ -272,7 +272,7 @@ const LogoEditor = () => {
                                             style={{ maxHeight: '200px' }}
                                         />
                                         <div className="text-lg font-semibold">
-                                            {location.state?.formData?.companyName || 'Şirket Adı'}
+                                            {location.state?.formData?.companyName || 'Company Name'}
                                         </div>
                                     </div>
                                 </div>
@@ -285,7 +285,7 @@ const LogoEditor = () => {
                                 <CardContent className="p-6">
                                     <h3 className="text-md font-semibold text-gray-900 mb-3 flex items-center">
                                         <CreditCard className="w-4 h-4 mr-2" />
-                                        Kartvizit
+                                        Business Card
                                     </h3>
                                     <div className="bg-white border border-gray-200 rounded-lg p-4 w-80 h-48 mx-auto">
                                         <div className="flex items-center space-x-3">
@@ -296,7 +296,7 @@ const LogoEditor = () => {
                                             />
                                             <div>
                                                 <div className="font-semibold text-gray-900">
-                                                    {location.state?.formData?.companyName || 'Şirket Adı'}
+                                                    {location.state?.formData?.companyName || 'Company Name'}
                                                 </div>
                                                 <div className="text-sm text-gray-600">
                                                     {location.state?.formData?.slogan || 'Slogan'}
@@ -313,7 +313,7 @@ const LogoEditor = () => {
                                 <CardContent className="p-6">
                                     <h3 className="text-md font-semibold text-gray-900 mb-3 flex items-center">
                                         <Smartphone className="w-4 h-4 mr-2" />
-                                        Sosyal Medya Profili
+                                        Social Media Profile
                                     </h3>
                                     <div className="bg-white border border-gray-200 rounded-lg p-4 w-64 h-64 mx-auto">
                                         <div className="text-center">
@@ -323,7 +323,7 @@ const LogoEditor = () => {
                                                 className="w-16 h-16 mx-auto mb-3"
                                             />
                                             <div className="font-semibold text-gray-900 text-sm">
-                                                {location.state?.formData?.companyName || 'Şirket Adı'}
+                                                {location.state?.formData?.companyName || 'Company Name'}
                                             </div>
                                         </div>
                                     </div>

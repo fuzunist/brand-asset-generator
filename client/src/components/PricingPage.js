@@ -102,7 +102,7 @@ const PricingPage = () => {
                                 <span>Geri</span>
                             </Button>
                             <div className="h-6 w-px bg-gray-300"></div>
-                            <h1 className="text-lg font-semibold text-gray-900">Marka Kitini Satın Al</h1>
+                            <h1 className="text-lg font-semibold text-gray-900">Purchase Brand Kit</h1>
                         </div>
                     </div>
                 </div>
@@ -123,10 +123,10 @@ const PricingPage = () => {
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-semibold text-gray-900">
-                                        {formData?.companyName || 'Şirket Adı'} Logo Tasarımı
+                                        {formData?.companyName || 'Company Name'} Logo Design
                                     </h3>
                                     <p className="text-gray-600">
-                                        {selectedLogo.industry && `${selectedLogo.industry} sektörü için özel tasarım`}
+                                        {selectedLogo.industry && `Custom design for ${selectedLogo.industry} industry`}
                                     </p>
                                 </div>
                             </div>
@@ -137,31 +137,31 @@ const PricingPage = () => {
                 {/* Ana Paket */}
                 <div className="text-center mb-12">
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                        Profesyonel Marka Kiti
+                        Professional Brand Kit
                     </h1>
                     <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                        Tüm ihtiyaçlarınızı karşılayan kapsamlı marka paketi. 
-                        Tek seferlik ödeme, sınırsız kullanım.
+                        Comprehensive brand package that meets all your needs. 
+                        One-time payment, unlimited usage.
                     </p>
                     
                     <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md mx-auto">
                         <div className="mb-6">
                             <div className="text-6xl font-bold text-blue-600 mb-2">₺299</div>
-                            <div className="text-gray-500">Tek seferlik ödeme</div>
+                            <div className="text-gray-500">One-time payment</div>
                         </div>
                         
                         <div className="space-y-4 mb-8">
                             <div className="flex items-center justify-center space-x-2">
                                 <CheckCircle className="w-5 h-5 text-green-500" />
-                                <span className="text-gray-700">Sınırsız kullanım hakkı</span>
+                                <span className="text-gray-700">Unlimited usage rights</span>
                             </div>
                             <div className="flex items-center justify-center space-x-2">
                                 <CheckCircle className="w-5 h-5 text-green-500" />
-                                <span className="text-gray-700">Anında indirme</span>
+                                <span className="text-gray-700">Instant download</span>
                             </div>
                             <div className="flex items-center justify-center space-x-2">
                                 <CheckCircle className="w-5 h-5 text-green-500" />
-                                <span className="text-gray-700">Telif hakkı garantisi</span>
+                                <span className="text-gray-700">Copyright guarantee</span>
                             </div>
                         </div>
 
@@ -170,7 +170,7 @@ const PricingPage = () => {
                             className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3"
                         >
                             <Sparkles className="w-5 h-5 mr-2" />
-                            Şimdi Satın Al
+                            Purchase Now
                         </Button>
                     </div>
                 </div>

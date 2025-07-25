@@ -52,10 +52,25 @@ export class LogoService {
                 // Eğer sektör eşleşmesi yoksa, benzer tag'leri kontrol et
                 const hasSimilarTags = !hasMatchingIndustry && logoTags.some(tag => {
                     const similarTags = {
-                        'teknoloji': ['tech', 'digital', 'innovation', 'modern', 'future'],
-                        'tarım': ['agriculture', 'farming', 'nature', 'organic', 'growth'],
-                        'sağlık': ['health', 'medical', 'care', 'wellness', 'healing'],
-                        'eğitim': ['education', 'learning', 'school', 'academic', 'knowledge']
+                        'technology': ['tech', 'digital', 'innovation', 'modern', 'future'],
+                        'agriculture': ['farming', 'nature', 'organic', 'growth', 'sustainability'],
+                        'healthcare': ['health', 'medical', 'care', 'wellness', 'healing'],
+                        'education': ['learning', 'school', 'academic', 'knowledge'],
+                        'automotive': ['car', 'vehicle', 'transport', 'mobility'],
+                        'beauty': ['cosmetics', 'aesthetics', 'wellness', 'care'],
+                        'construction': ['building', 'architecture', 'development'],
+                        'marketing': ['advertising', 'promotion', 'branding'],
+                        'legal': ['law', 'justice', 'professional'],
+                        'real estate': ['property', 'housing', 'development'],
+                        'manufacturing': ['production', 'industrial', 'factory'],
+                        'finance': ['banking', 'investment', 'money'],
+                        'e-commerce': ['online', 'digital', 'retail'],
+                        'food & beverage': ['restaurant', 'catering', 'dining'],
+                        'fashion': ['clothing', 'style', 'apparel'],
+                        'sports': ['fitness', 'athletic', 'training'],
+                        'art': ['creative', 'design', 'culture'],
+                        'consulting': ['business', 'professional', 'advice'],
+                        'tourism': ['travel', 'hospitality', 'vacation']
                     };
                     
                     const industrySimilar = similarTags[industry.toLowerCase()] || [];
