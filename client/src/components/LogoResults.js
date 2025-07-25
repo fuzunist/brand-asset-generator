@@ -165,16 +165,21 @@ const LogoResults = () => {
                             >
                                 <CardContent className="p-4">
                                     {/* Logo - Zoviz stilinde */}
-                                    <div className="aspect-video bg-white rounded-lg mb-4 overflow-hidden flex items-center justify-center p-8">
+                                    <div className="aspect-video bg-white rounded-lg mb-4 overflow-hidden flex items-center justify-center p-8 relative">
                                         <img
                                             src={logo.previewUrl || logo.preview}
                                             alt={logo.name}
                                             className="max-w-full max-h-full object-contain"
                                         />
+                                        {selectedLogo?.id === logo.id && (
+                                            <div className="absolute top-2 right-2">
+                                                <CheckCircle className="w-6 h-6 text-blue-600 bg-white rounded-full" />
+                                            </div>
+                                        )}
                                     </div>
                                     
                                     {/* Firma ismi - Logo altında ayrı */}
-                                    <div className="text-center mb-4">
+                                    <div className="text-center">
                                         <h3 
                                             className="text-gray-900 font-bold text-xl" 
                                             style={{ 
@@ -184,20 +189,6 @@ const LogoResults = () => {
                                             {location.state?.formData?.companyName || 'Company Name'}
                                         </h3>
                                     </div>
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div>
-                                            <h3 className="font-semibold text-gray-900" style={{ fontFamily: getRandomFont() }}>
-                                                {location.state?.formData?.companyName || 'Company Name'}
-                                            </h3>
-                                            {logo.industry && (
-                                                <p className="text-xs text-gray-500 capitalize">{logo.industry}</p>
-                                            )}
-                                        </div>
-                                        {selectedLogo?.id === logo.id && (
-                                            <CheckCircle className="w-5 h-5 text-blue-600" />
-                                        )}
-                                    </div>
-                                    <p className="text-sm text-gray-600 mb-3">{logo.description}</p>
                                 </CardContent>
                             </Card>
                         ))}
