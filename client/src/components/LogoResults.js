@@ -151,37 +151,38 @@ const LogoResults = () => {
                         </p>
                     </div>
 
-                    {/* Logo Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    {/* Logo Grid - Zoviz stilinde */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                         {logos.map((logo) => (
                             <Card
                                 key={logo.id}
-                                className={`cursor-pointer transition-all hover:shadow-lg ${
+                                className={`cursor-pointer transition-all hover:shadow-lg bg-white ${
                                     selectedLogo?.id === logo.id
                                         ? 'ring-2 ring-blue-500 shadow-lg'
                                         : 'hover:scale-105'
                                 }`}
                                 onClick={() => handleLogoSelect(logo)}
                             >
-                                <CardContent className="p-6">
-                                    <div className="aspect-video bg-gray-100 rounded-lg mb-4 overflow-hidden relative">
+                                <CardContent className="p-4">
+                                    {/* Logo - Zoviz stilinde */}
+                                    <div className="aspect-video bg-white rounded-lg mb-4 overflow-hidden flex items-center justify-center p-8">
                                         <img
                                             src={logo.previewUrl || logo.preview}
                                             alt={logo.name}
-                                            className="w-full h-full object-cover"
+                                            className="max-w-full max-h-full object-contain"
                                         />
-                                        {/* Firma ismi logo üzerine bindirilmiş */}
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <h3 
-                                                className="text-white font-bold text-2xl drop-shadow-lg" 
-                                                style={{ 
-                                                    fontFamily: getRandomFont(),
-                                                    textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
-                                                }}
-                                            >
-                                                {location.state?.formData?.companyName || 'Company Name'}
-                                            </h3>
-                                        </div>
+                                    </div>
+                                    
+                                    {/* Firma ismi - Logo altında ayrı */}
+                                    <div className="text-center mb-4">
+                                        <h3 
+                                            className="text-gray-900 font-bold text-xl" 
+                                            style={{ 
+                                                fontFamily: getRandomFont()
+                                            }}
+                                        >
+                                            {location.state?.formData?.companyName || 'Company Name'}
+                                        </h3>
                                     </div>
                                     <div className="flex items-center justify-between mb-2">
                                         <div>
@@ -202,97 +203,110 @@ const LogoResults = () => {
                         ))}
                     </div>
 
-                    {/* Action Buttons */}
+                    {/* Selected Logo Preview - Zoviz stilinde */}
                     {selectedLogo && (
-                        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-                            <div className="flex items-center justify-between mb-4">
-                                <div>
-                                    <h3 className="text-lg font-semibold text-gray-900">
-                                        Selected Logo: {selectedLogo.name}
+                        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                {/* Sol taraf - Büyük logo preview */}
+                                <div className="flex flex-col items-center justify-center">
+                                    <div className="w-64 h-64 bg-white rounded-lg flex items-center justify-center p-8 mb-6 border border-gray-200">
+                                        <img
+                                            src={selectedLogo.previewUrl || selectedLogo.preview}
+                                            alt={selectedLogo.name}
+                                            className="max-w-full max-h-full object-contain"
+                                        />
+                                    </div>
+                                    <h3 
+                                        className="text-gray-900 font-bold text-2xl text-center" 
+                                        style={{ 
+                                            fontFamily: getRandomFont()
+                                        }}
+                                    >
+                                        {location.state?.formData?.companyName || 'Company Name'}
                                     </h3>
-                                    <p className="text-gray-600">{selectedLogo.description}</p>
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                    <Button variant="outline" size="sm">
-                                        <Heart className="w-4 h-4 mr-2" />
-                                        Like
-                                    </Button>
-                                    <Button variant="outline" size="sm">
-                                        <Share2 className="w-4 h-4 mr-2" />
-                                        Share
-                                    </Button>
+                                
+                                {/* Sağ taraf - Action buttons */}
+                                <div className="flex flex-col justify-center space-y-4">
+                                    <div className="text-center lg:text-left">
+                                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                                            Selected Logo
+                                        </h3>
+                                        <p className="text-gray-600 mb-6">
+                                            {selectedLogo.description || 'Professional logo design for your brand'}
+                                        </p>
+                                    </div>
+                                    
+                                    <div className="flex flex-col space-y-3">
+                                        <Button
+                                            onClick={handleEdit}
+                                            className="flex items-center justify-center lg:justify-start"
+                                        >
+                                            <Edit3 className="w-4 h-4 mr-2" />
+                                            Customize Logo
+                                        </Button>
+                                        <Button
+                                            onClick={handlePurchase}
+                                            className="flex items-center justify-center lg:justify-start bg-blue-600 hover:bg-blue-700"
+                                        >
+                                            <Sparkles className="w-4 h-4 mr-2" />
+                                            Get Logo & Brand Kit
+                                            <ArrowRight className="w-4 h-4 ml-2" />
+                                        </Button>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-center lg:justify-start space-x-4 pt-4">
+                                        <Button variant="outline" size="sm">
+                                            <Heart className="w-4 h-4 mr-2" />
+                                            Like
+                                        </Button>
+                                        <Button variant="outline" size="sm">
+                                            <Share2 className="w-4 h-4 mr-2" />
+                                            Share
+                                        </Button>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                <Button
-                                    onClick={handleEdit}
-                                    className="flex items-center"
-                                >
-                                    <Edit3 className="w-4 h-4 mr-2" />
-                                    Edit
-                                </Button>
-                                <Button
-                                    onClick={handleDownload}
-                                    variant="outline"
-                                    className="flex items-center"
-                                >
-                                    <Download className="w-4 h-4 mr-2" />
-                                    Download Preview
-                                </Button>
-                                <Button
-                                    onClick={handlePurchase}
-                                    className="flex items-center bg-blue-600 hover:bg-blue-700"
-                                >
-                                    <Sparkles className="w-4 h-4 mr-2" />
-                                    Purchase Brand Kit
-                                    <ArrowRight className="w-4 h-4 ml-2" />
-                                </Button>
                             </div>
                         </div>
                     )}
 
-                    {/* Package Info */}
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                            What's Included in Your Brand Kit?
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div className="flex items-center space-x-3">
-                                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <Sparkles className="w-4 h-4 text-blue-600" />
+                    {/* Package Info - Zoviz stilinde */}
+                    <div className="bg-white rounded-lg p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
+                                    <div className="w-6 h-6 bg-blue-600 rounded-sm"></div>
                                 </div>
-                                <div>
-                                    <p className="font-medium text-gray-900">5 Logo Variations</p>
-                                    <p className="text-sm text-gray-600">PNG, SVG, PDF</p>
-                                </div>
+                                <p className="font-medium text-gray-900 text-sm">High Quality Logo Files</p>
+                                <p className="text-xs text-gray-600">PNG, SVG, JPG</p>
                             </div>
-                            <div className="flex items-center space-x-3">
-                                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                    <div className="w-4 h-4 bg-green-600 rounded"></div>
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-3">
+                                    <div className="w-6 h-6 bg-green-600 rounded-full"></div>
                                 </div>
-                                <div>
-                                    <p className="font-medium text-gray-900">Color Palette</p>
-                                    <p className="text-sm text-gray-600">HEX, RGB, CMYK</p>
-                                </div>
+                                <p className="font-medium text-gray-900 text-sm">Social Media Kit</p>
+                                <p className="text-xs text-gray-600">Profiles & Covers</p>
                             </div>
-                            <div className="flex items-center space-x-3">
-                                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                                    <span className="text-purple-600 font-bold text-sm">Aa</span>
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-3">
+                                    <div className="w-6 h-6 bg-purple-600 rounded-sm"></div>
                                 </div>
-                                <div>
-                                    <p className="font-medium text-gray-900">Font Selection</p>
-                                    <p className="text-sm text-gray-600">Web & Print</p>
-                                </div>
+                                <p className="font-medium text-gray-900 text-sm">Brand Stationery</p>
+                                <p className="text-xs text-gray-600">Letterhead & More</p>
                             </div>
-                            <div className="flex items-center space-x-3">
-                                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                                    <div className="w-4 h-4 bg-orange-600 rounded-sm"></div>
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-3">
+                                    <span className="text-orange-600 font-bold text-lg">C</span>
                                 </div>
-                                <div>
-                                    <p className="font-medium text-gray-900">Brand Guidelines</p>
-                                    <p className="text-sm text-gray-600">Usage Rules</p>
+                                <p className="font-medium text-gray-900 text-sm">Customize Every Time</p>
+                                <p className="text-xs text-gray-600">Colors, Fonts & More</p>
+                            </div>
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-3">
+                                    <span className="text-red-600 font-bold text-lg">C</span>
                                 </div>
+                                <p className="font-medium text-gray-900 text-sm">Commercial Use</p>
+                                <p className="text-xs text-gray-600">Lifetime License</p>
                             </div>
                         </div>
                     </div>
