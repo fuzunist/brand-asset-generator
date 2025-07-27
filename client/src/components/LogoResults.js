@@ -11,7 +11,9 @@ import {
     CheckCircle,
     Palette,
     Image,
-    Type
+    Type,
+    Filter,
+    X
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
@@ -19,6 +21,32 @@ import BrandingMockup from './BrandingMockup';
 import MockupPreview from './MockupPreview';
 
 const LOGO_BATCH_SIZE = 4;
+
+// Sektör listesi - Firebase'deki gerçek industry değerleri (1828 logo, 20 sektör analizi)
+// En çok logosu olan sektörler üstte sıralanmış
+const INDUSTRIES = [
+    { value: 'all', label: 'Tüm Sektörler' },
+    { value: 'real-estate', label: 'Emlak' },
+    { value: 'fitness', label: 'Fitness & Spor' },
+    { value: 'agriculture', label: 'Tarım' },
+    { value: 'education', label: 'Eğitim' },
+    { value: 'technology', label: 'Teknoloji' },
+    { value: 'energy', label: 'Enerji' },
+    { value: 'finance', label: 'Finans' },
+    { value: 'food-beverage', label: 'Gıda & İçecek' },
+    { value: 'entertainment', label: 'Eğlence' },
+    { value: 'automotive', label: 'Otomotiv' },
+    { value: 'healthcare', label: 'Sağlık' },
+    { value: 'manufacturing', label: 'İmalat' },
+    { value: 'travel', label: 'Seyahat & Turizm' },
+    { value: 'beauty', label: 'Güzellik & Kozmetik' },
+    { value: 'marketing', label: 'Pazarlama' },
+    { value: 'construction', label: 'İnşaat' },
+    { value: 'retail', label: 'Perakende' },
+    { value: 'non-profit', label: 'Kar Amacı Gütmeyen' },
+    { value: 'consulting', label: 'Danışmanlık' },
+    { value: 'legal', label: 'Hukuk' }
+];
 
 const LogoResults = () => {
     const location = useLocation();
@@ -32,17 +60,30 @@ const LogoResults = () => {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [lastVisibleTimestamp, setLastVisibleTimestamp] = useState(null);
     
+    // Yeni state'ler
+    const [showIndustryPopup, setShowIndustryPopup] = useState(false);
+    const [selectedIndustry, setSelectedIndustry] = useState('all');
+    const [hasTriggeredPopup, setHasTriggeredPopup] = useState(false);
+    
     const observer = useRef();
 
     const loadMoreLogos = useCallback(async () => {
         if (isLoadingMore || !hasMore) return;
 
+        // İlk scroll'da popup'ı tetikle
+        if (!hasTriggeredPopup) {
+            setShowIndustryPopup(true);
+            setHasTriggeredPopup(true);
+            return; // Popup açıldığında yüklemeyi durdur
+        }
+
         setIsLoadingMore(true);
 
         const { LogoService } = await import('../services/logoService');
-        const { logos: newLogos, lastTimestamp } = await LogoService.getAllPublishedLogos({
+        const { logos: newLogos, lastTimestamp, hasMore: moreAvailable } = await LogoService.getAllPublishedLogos({
             limitCount: LOGO_BATCH_SIZE,
             lastVisibleTimestamp: lastVisibleTimestamp,
+            industry: selectedIndustry === 'all' ? null : selectedIndustry
         });
 
         const logosWithStyles = newLogos.map(logo => ({
@@ -53,14 +94,11 @@ const LogoResults = () => {
 
         setLogos(prevLogos => [...prevLogos, ...logosWithStyles]);
         setLastVisibleTimestamp(lastTimestamp);
-        
-        if (newLogos.length < LOGO_BATCH_SIZE) {
-            setHasMore(false);
-        }
+        setHasMore(moreAvailable !== undefined ? moreAvailable : newLogos.length >= LOGO_BATCH_SIZE);
         
         setIsLoadingMore(false);
 
-    }, [isLoadingMore, hasMore, lastVisibleTimestamp]);
+    }, [isLoadingMore, hasMore, lastVisibleTimestamp, selectedIndustry, hasTriggeredPopup]);
 
     const lastLogoElementRef = useCallback(node => {
         if (isLoadingMore) return;
@@ -103,9 +141,20 @@ const LogoResults = () => {
         const loadInitialLogos = async () => {
             setIsLoading(true);
             const { LogoService } = await import('../services/logoService');
-            const { logos: initialLogos, lastTimestamp } = await LogoService.getAllPublishedLogos({
+            
+            // Firebase'deki industry dağılımını analiz et (sadece ilk yüklemede)
+            if (selectedIndustry === 'all') {
+                try {
+                    await LogoService.getIndustryDistribution();
+                } catch (error) {
+                    console.error('Industry analizi yapılamadı:', error);
+                }
+            }
+            
+            const { logos: initialLogos, lastTimestamp, hasMore: moreAvailable } = await LogoService.getAllPublishedLogos({
                 limitCount: LOGO_BATCH_SIZE,
                 lastVisibleTimestamp: null,
+                industry: selectedIndustry === 'all' ? null : selectedIndustry
             });
 
             const logosWithStyles = initialLogos.map(logo => ({
@@ -116,15 +165,12 @@ const LogoResults = () => {
 
             setLogos(logosWithStyles);
             setLastVisibleTimestamp(lastTimestamp);
-
-            if (initialLogos.length < LOGO_BATCH_SIZE) {
-                setHasMore(false);
-            }
+            setHasMore(moreAvailable !== undefined ? moreAvailable : initialLogos.length >= LOGO_BATCH_SIZE);
             setIsLoading(false);
         };
 
         loadInitialLogos();
-    }, []);
+    }, [selectedIndustry]);
 
 
     const handleLogoSelect = (logo) => {
@@ -363,6 +409,40 @@ const LogoResults = () => {
         return `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`;
     };
 
+    // Sektör seçimi fonksiyonu
+    const handleIndustrySelect = async (industry) => {
+        setSelectedIndustry(industry);
+        setShowIndustryPopup(false);
+        setIsLoading(true);
+        setLogos([]);
+        setLastVisibleTimestamp(null);
+        setHasMore(true);
+
+        // Seçilen sektöre göre logoları yükle
+        const { LogoService } = await import('../services/logoService');
+        const { logos: newLogos, lastTimestamp, hasMore: moreAvailable } = await LogoService.getAllPublishedLogos({
+            limitCount: LOGO_BATCH_SIZE,
+            lastVisibleTimestamp: null,
+            industry: industry === 'all' ? null : industry
+        });
+
+        const logosWithStyles = newLogos.map(logo => ({
+            ...logo,
+            brandColor: getRandomColor(),
+            logoFont: getRandomFont()
+        }));
+
+        setLogos(logosWithStyles);
+        setLastVisibleTimestamp(lastTimestamp);
+        setHasMore(moreAvailable !== undefined ? moreAvailable : newLogos.length >= LOGO_BATCH_SIZE);
+        setIsLoading(false);
+    };
+
+    // Üst filtreden sektör değişimi
+    const handleTopFilterChange = (industry) => {
+        handleIndustrySelect(industry);
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -376,6 +456,35 @@ const LogoResults = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            {/* Industry Selection Popup */}
+            {showIndustryPopup && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-2xl p-6 w-96 max-h-[80vh] overflow-y-auto">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold text-gray-900">Lütfen Sektör Seçiniz</h3>
+                            <button
+                                onClick={() => setShowIndustryPopup(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        
+                        <div className="space-y-2">
+                            {INDUSTRIES.map((industry) => (
+                                <button
+                                    key={industry.value}
+                                    onClick={() => handleIndustrySelect(industry.value)}
+                                    className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 hover:border-blue-300"
+                                >
+                                    <span className="font-medium text-gray-900">{industry.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Floating Final Logo Preview */}
             {showFinalPreview && finalLogo && (
                 <div className="fixed top-4 right-4 z-50 bg-white rounded-lg shadow-2xl border border-gray-200 p-4 w-96">
@@ -481,10 +590,31 @@ const LogoResults = () => {
                         <h1 className="text-3xl font-bold text-gray-900 mb-4">
                             Logo Designs for {location.state?.formData?.companyName}
                         </h1>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
+                        <p className="text-gray-600 max-w-2xl mx-auto mb-6">
                             AI has created amazing logo designs for you. 
                             Choose your favorite design and create your brand kit.
                         </p>
+                        
+                        {/* Industry Filter */}
+                        <div className="flex items-center justify-center gap-4 mb-6">
+                            <Filter className="w-5 h-5 text-gray-600" />
+                            <select
+                                value={selectedIndustry}
+                                onChange={(e) => handleTopFilterChange(e.target.value)}
+                                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                                {INDUSTRIES.map((industry) => (
+                                    <option key={industry.value} value={industry.value}>
+                                        {industry.label}
+                                    </option>
+                                ))}
+                            </select>
+                            {selectedIndustry !== 'all' && (
+                                <span className="text-sm text-blue-600 font-medium">
+                                    {INDUSTRIES.find(i => i.value === selectedIndustry)?.label} sektörü
+                                </span>
+                            )}
+                        </div>
                     </div>
 
                     {/* Logo Cards - One per row, horizontal layout */}

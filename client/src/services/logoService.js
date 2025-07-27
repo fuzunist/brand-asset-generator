@@ -172,18 +172,22 @@ export class LogoService {
      * @param {Object} options - Sayfalama seçenekleri
      * @param {number} options.limitCount - Kaç logo getirileceği
      * @param {import('firebase/firestore').Timestamp} options.lastVisibleTimestamp - Hangi dokümandan sonra başlanacağı (timestamp)
+     * @param {string} options.industry - Filtrelenecek sektör (null ise tüm logoları getir)
      * @returns {Promise<{logos: Array, lastTimestamp: import('firebase/firestore').Timestamp}>} Logo listesi ve bir sonraki sayfa için son dokümanın timestamp'i
      */
-    static async getAllPublishedLogos({ limitCount = 4, lastVisibleTimestamp = null }) {
+    static async getAllPublishedLogos({ limitCount = 4, lastVisibleTimestamp = null, industry = null }) {
         try {
-            console.log(`📋 Yayınlanmış logolar getiriliyor... Limit: ${limitCount}`);
+            console.log(`📋 Yayınlanmış logolar getiriliyor... Limit: ${limitCount}, Industry: ${industry || 'Tümü'}`);
             
             const logosRef = collection(db, 'logos');
+            
+            // Basit sorgu - industry filtresi varsa daha çok al, sonra client-side filtrele
+            const fetchLimit = industry ? limitCount * 5 : limitCount;
             
             const queryConstraints = [
                 where('status', '==', 'published'),
                 orderBy('createdAt', 'desc'),
-                limit(limitCount)
+                limit(fetchLimit)
             ];
 
             if (lastVisibleTimestamp) {
@@ -191,15 +195,21 @@ export class LogoService {
             }
             
             const q = query(logosRef, ...queryConstraints);
-
-            console.log('📋 Firestore sorgusu oluşturuldu');
             const querySnapshot = await getDocs(q);
             console.log(`📊 Sorgu sonucu: ${querySnapshot.docs.length} doküman bulundu`);
             
             const logos = [];
+            let processedCount = 0;
 
             for (const doc of querySnapshot.docs) {
                 const logoData = doc.data();
+                processedCount++;
+                
+                // Client-side industry filtresi
+                if (industry && logoData.industry !== industry) {
+                    continue; // Bu logoyu atla
+                }
+                
                 try {
                     if (logoData.storagePath_svg) {
                         const svgRef = ref(storage, logoData.storagePath_svg);
@@ -210,20 +220,30 @@ export class LogoService {
                             ...logoData,
                             svgUrl,
                             previewUrl: svgUrl,
-                            // Firestore Document'ını sonradan kullanabilmek için ekliyoruz
                             firestoreDoc: doc 
                         });
+                        
+                        // Tam istenen sayıya ulaştığında dur
+                        if (logos.length >= limitCount) {
+                            break;
+                        }
                     }
                 } catch (error) {
-                    console.error(`SVG URL alınamadı: ${doc.id}`, error);
+                    console.error(`❌ SVG URL alınamadı: ${doc.id}`, error);
                 }
             }
             
-            // Bir sonraki sorgu için son görünür dokümanın timestamp'ini al
+            // Son dokümanın timestamp'ini al (pagination için)
             const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
             const lastTimestamp = lastDoc ? lastDoc.data().createdAt : null;
-
-            return { logos, lastTimestamp };
+            
+            console.log(`✅ ${logos.length} logo yüklendi (${processedCount} doküman işlendi)`);
+            
+            return { 
+                logos, 
+                lastTimestamp,
+                hasMore: querySnapshot.docs.length === fetchLimit && lastTimestamp !== null
+            };
         } catch (error) {
             console.error('Logolar getirilirken hata:', error);
             throw error;
@@ -261,6 +281,63 @@ export class LogoService {
             };
         } catch (error) {
             console.error('Logo getirilirken hata:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Firebase'deki tüm logoları inceleyip industry dağılımını çıkarır
+     * @returns {Promise<Object>} Industry değerleri ve sayıları
+     */
+    static async getIndustryDistribution() {
+        try {
+            console.log('🔍 Firebase\'deki tüm logolar inceleniyor...');
+            
+            const logosRef = collection(db, 'logos');
+            const q = query(
+                logosRef,
+                where('status', '==', 'published')
+            );
+
+            const querySnapshot = await getDocs(q);
+            console.log(`📊 Toplam ${querySnapshot.docs.length} published logo bulundu`);
+            
+            const industryCount = {};
+            let totalLogos = 0;
+
+            querySnapshot.docs.forEach(doc => {
+                const logoData = doc.data();
+                const industry = logoData.industry;
+                
+                if (industry) {
+                    industryCount[industry] = (industryCount[industry] || 0) + 1;
+                    totalLogos++;
+                } else {
+                    console.warn(`⚠️ Industry değeri olmayan logo: ${doc.id}`);
+                }
+            });
+
+            // Sonuçları sırala (en çoktan aza)
+            const sortedIndustries = Object.entries(industryCount)
+                .sort(([,a], [,b]) => b - a)
+                .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+
+            console.log('🎯 INDUSTRY DAĞILIMI:');
+            console.log('='.repeat(50));
+            Object.entries(sortedIndustries).forEach(([industry, count]) => {
+                const percentage = ((count / totalLogos) * 100).toFixed(1);
+                console.log(`📈 ${industry.padEnd(25)} : ${count.toString().padStart(3)} logo (${percentage}%)`);
+            });
+            console.log('='.repeat(50));
+            console.log(`📊 TOPLAM: ${totalLogos} logo, ${Object.keys(sortedIndustries).length} farklı sektör`);
+
+            return {
+                distribution: sortedIndustries,
+                totalLogos,
+                uniqueIndustries: Object.keys(sortedIndustries).length
+            };
+        } catch (error) {
+            console.error('Industry dağılımı alınamadı:', error);
             throw error;
         }
     }
