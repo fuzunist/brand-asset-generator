@@ -3,12 +3,12 @@ import React from 'react';
 const MockupPreview = ({ logo, companyName, brandColor, logoFont, fontSize = 3, iconSize = 6 }) => {
 
     return (
-        <div className="bg-slate-900 p-4 rounded-xl shadow-2xl space-y-3">
+        <div className="bg-slate-900 p-4 rounded-xl flex flex-col gap-3 h-[32rem]">
             
             {/* Row 1: Document and Vertical Card */}
-            <div className="flex gap-4 h-48">
+            <div className="flex gap-4 flex-grow">
                 {/* Document Mockup */}
-                <div className="w-2/3 bg-white rounded-lg p-3 shadow-lg flex flex-col">
+                <div className="w-2/3 bg-white rounded-lg p-3 flex flex-col h-full">
                     <div className="flex items-center gap-1 mb-2">
                         <div
                             className="flex-shrink-0"
@@ -42,7 +42,7 @@ const MockupPreview = ({ logo, companyName, brandColor, logoFont, fontSize = 3, 
                 </div>
                 {/* Vertical Business Card */}
                 <div 
-                    className="w-1/3 rounded-lg p-3 shadow-lg flex flex-col items-center justify-center text-white"
+                    className="w-1/3 rounded-lg p-3 flex flex-col items-center justify-center text-white h-full"
                     style={{ backgroundColor: brandColor }}
                 >
                     <div
@@ -71,9 +71,9 @@ const MockupPreview = ({ logo, companyName, brandColor, logoFont, fontSize = 3, 
             </div>
 
             {/* Row 2: Horizontal Cards */}
-            <div className="flex gap-4 h-24">
+            <div className="flex gap-4 flex-grow">
                 {/* Small White Horizontal Card */}
-                <div className="w-1/2 bg-white rounded-lg p-3 shadow-lg flex items-center justify-center">
+                <div className="w-1/2 bg-white rounded-lg p-3 flex items-center justify-center h-full">
                      <div className="flex items-center gap-1">
                         <div
                             style={{
@@ -101,7 +101,7 @@ const MockupPreview = ({ logo, companyName, brandColor, logoFont, fontSize = 3, 
                 </div>
                  {/* Small Colored Horizontal Card */}
                 <div 
-                    className="w-1/2 rounded-lg p-3 shadow-lg flex items-center justify-center text-white"
+                    className="w-1/2 rounded-lg p-3 flex items-center justify-center text-white h-full"
                     style={{ backgroundColor: brandColor }}
                 >
                     <div className="flex items-center gap-1">
@@ -131,8 +131,8 @@ const MockupPreview = ({ logo, companyName, brandColor, logoFont, fontSize = 3, 
             </div>
 
              {/* Row 3: Full-width Dark Mockup */}
-             <div className="flex gap-4 h-20">
-                <div className="w-full bg-gray-800 rounded-lg p-3 shadow-lg flex items-center justify-between">
+             <div className="flex gap-4 flex-grow">
+                <div className="w-full bg-gray-800 rounded-lg p-3 flex items-center justify-between h-full">
                     <div className="flex items-center gap-2">
                          <div
                             style={{

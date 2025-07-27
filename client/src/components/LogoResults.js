@@ -508,12 +508,12 @@ const LogoResults = () => {
                                     className={`transition-all hover:shadow-lg bg-white`}
                                 >
                                     <CardContent className="p-6">
-                                        <div className="flex flex-col lg:flex-row gap-6 lg:items-start">
+                                        <div className="flex flex-col lg:flex-row gap-6 lg:items-stretch">
                                                                                     {/* Left Side - Logo */}
                                         <div className="lg:w-1/2">
-                                            <div className="flex flex-col items-center justify-start h-full">
+                                            <div className="flex flex-col items-center justify-start h-[32rem]">
                                                 {/* Logo and Company Name Combined */}
-                                                <div className="w-full h-[32rem] bg-white rounded-lg flex flex-col items-center justify-center p-4 border border-gray-200 mb-4">
+                                                <div className="w-full h-full bg-white rounded-lg flex flex-col items-center justify-center p-4 border border-gray-200">
                                                     {/* Logo Icon */}
                                                     <div className="mb-2">
                                                         <div
