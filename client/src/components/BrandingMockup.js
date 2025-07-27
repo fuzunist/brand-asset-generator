@@ -1,130 +1,112 @@
 import React from 'react';
 
-const BrandingMockup = ({ logo, companyName, brandColor, logoFont }) => {
+const BrandingMockup = ({ logo, companyName, brandColor, logoFont, fontSize = 3, iconSize = 6 }) => {
+    
+    const logoStyle = (color) => ({
+        backgroundColor: color,
+        maskImage: `url(${logo.previewUrl || logo.preview})`,
+        WebkitMaskImage: `url(${logo.previewUrl || logo.preview})`,
+        maskSize: 'contain',
+        maskRepeat: 'no-repeat',
+        maskPosition: 'center',
+    });
+
     return (
-        <div className="branding-wrapper w-full h-56 bg-gray-800 rounded-lg p-4 relative overflow-hidden">
-            {/* Letterhead - Sol üst */}
-            <div className="absolute top-4 left-4 w-24 h-32 bg-white rounded shadow-lg p-2 transform -rotate-2">
-                <div className="flex items-center gap-1 mb-2">
-                    <img
-                        src={logo.previewUrl || logo.preview}
-                        alt="Logo"
-                        className="w-3 h-3 object-contain"
-                    />
+        <div className="bg-slate-800 p-4 rounded-xl shadow-2xl space-y-3">
+            
+            {/* Row 1: T-shirt and Social Post */}
+            <div className="flex gap-4 h-48">
+                {/* T-shirt Mockup */}
+                <div className="w-1/2 bg-gray-200 rounded-lg p-4 shadow-lg flex flex-col items-center justify-center relative overflow-hidden">
+                    <div className="absolute -top-12 -left-12 w-24 h-24 bg-gray-300 rounded-full"></div>
+                    <div className="absolute -bottom-12 -right-4 w-32 h-32 bg-gray-300 rounded-full opacity-50"></div>
+                    <div
+                        className="mb-2 z-10"
+                        style={{
+                            ...logoStyle(brandColor),
+                            width: `${iconSize * 1.2}rem`,
+                            height: `${iconSize * 1.2}rem`,
+                        }}
+                    ></div>
                     <span 
-                        className="font-bold text-xs"
-                        style={{ 
+                        className="font-bold z-10 text-center"
+                        style={{
                             color: brandColor,
-                            fontFamily: logoFont
+                            fontFamily: logoFont,
+                            fontSize: `${fontSize * 0.7}rem`
                         }}
                     >
                         {companyName}
                     </span>
                 </div>
-                <div className="space-y-1">
-                    <div className="h-1.5 bg-gray-200 rounded"></div>
-                    <div className="h-1.5 bg-gray-200 rounded"></div>
-                    <div className="h-1.5 bg-gray-200 rounded w-2/3"></div>
+                {/* Social Media Post Mockup */}
+                <div 
+                    className="w-1/2 rounded-lg p-3 shadow-lg flex flex-col justify-between text-white"
+                    style={{ backgroundColor: brandColor }}
+                >
+                    <div className="flex items-center gap-1 mb-2">
+                        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0">
+                            <div style={{...logoStyle(brandColor), width: '60%', height: '60%'}}></div>
+                        </div>
+                        <div>
+                            <p className="font-bold" style={{fontFamily: logoFont, fontSize: `${fontSize * 0.35}rem`}}>{companyName}</p>
+                            <p className="opacity-80" style={{fontSize: `${fontSize * 0.3}rem`}}>Sponsored</p>
+                        </div>
+                    </div>
+                    <div className="flex-grow bg-white/20 rounded-lg mt-1"></div>
                 </div>
             </div>
 
-            {/* Notebook - Orta üst */}
-            <div 
-                className="absolute top-8 left-32 w-20 h-28 rounded shadow-lg flex items-center justify-center transform rotate-2"
-                style={{ backgroundColor: brandColor }}
-            >
-                <div className="flex flex-col items-center gap-1 text-white">
-                    <img
-                        src={logo.previewUrl || logo.preview}
-                        alt="Logo"
-                        className="w-3 h-3 object-contain"
-                    />
+            {/* Row 2: App Icon and Website Header */}
+            <div className="flex gap-4 h-24">
+                {/* App Icon */}
+                <div className="w-1/3 bg-white rounded-lg p-3 shadow-lg flex flex-col items-center justify-center">
+                     <div
+                        style={{
+                            ...logoStyle(brandColor),
+                            width: `${iconSize}rem`,
+                            height: `${iconSize}rem`,
+                        }}
+                    ></div>
                     <span 
-                        className="font-bold text-xs text-center"
-                        style={{ fontFamily: logoFont }}
-                    >
-                        {companyName}
-                    </span>
-                </div>
-            </div>
-
-            {/* Business Card 1 - Sol alt */}
-            <div className="absolute bottom-8 left-4 w-20 h-12 bg-white rounded shadow-lg p-1.5">
-                <div className="flex items-center gap-1">
-                    <img
-                        src={logo.previewUrl || logo.preview}
-                        alt="Logo"
-                        className="w-2.5 h-2.5 object-contain"
-                    />
-                    <span 
-                        className="font-bold text-xs"
-                        style={{ 
+                        className="font-bold text-center mt-2"
+                        style={{
                             color: brandColor,
-                            fontFamily: logoFont
+                            fontFamily: logoFont,
+                            fontSize: `${fontSize * 0.35}rem`
                         }}
                     >
                         {companyName}
                     </span>
                 </div>
-            </div>
-
-            {/* Business Card 2 - Orta alt */}
-            <div 
-                className="absolute bottom-8 left-28 w-20 h-12 rounded shadow-lg p-1.5 flex items-center"
-                style={{ backgroundColor: brandColor }}
-            >
-                <div className="flex items-center gap-1 text-white">
-                    <img
-                        src={logo.previewUrl || logo.preview}
-                        alt="Logo"
-                        className="w-2.5 h-2.5 object-contain"
-                    />
-                    <span 
-                        className="font-bold text-xs"
-                        style={{ fontFamily: logoFont }}
-                    >
-                        {companyName}
-                    </span>
-                </div>
-            </div>
-
-            {/* Envelope - Sağ alt */}
-            <div className="absolute bottom-4 right-4 w-24 h-16 bg-gray-100 rounded shadow-lg p-2 transform rotate-1">
-                <div className="flex items-center gap-1">
-                    <img
-                        src={logo.previewUrl || logo.preview}
-                        alt="Logo"
-                        className="w-2.5 h-2.5 object-contain"
-                    />
-                    <span 
-                        className="font-bold text-xs"
-                        style={{ 
-                            color: brandColor,
-                            fontFamily: logoFont
-                        }}
-                    >
-                        {companyName}
-                    </span>
-                </div>
-            </div>
-
-            {/* Large Logo Display - Sağ üst */}
-            <div className="absolute top-4 right-4">
-                <div className="flex flex-col items-center gap-1">
-                    <img
-                        src={logo.previewUrl || logo.preview}
-                        alt="Logo"
-                        className="w-8 h-8 object-contain"
-                    />
-                    <span 
-                        className="font-bold text-xs text-white text-center"
-                        style={{ 
-                            color: brandColor,
-                            fontFamily: logoFont
-                        }}
-                    >
-                        {companyName}
-                    </span>
+                {/* Website Header */}
+                <div 
+                    className="w-2/3 rounded-lg p-3 shadow-lg flex items-center justify-between"
+                    style={{ backgroundColor: brandColor }}
+                >
+                    <div className="flex items-center gap-1">
+                        <div
+                            style={{
+                                ...logoStyle('white'),
+                                width: `${iconSize * 0.7}rem`,
+                                height: `${iconSize * 0.7}rem`,
+                            }}
+                        ></div>
+                        <span 
+                            className="font-bold text-white"
+                            style={{
+                                fontFamily: logoFont,
+                                fontSize: `${fontSize * 0.5}rem`
+                            }}
+                        >
+                            {companyName}
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="h-2 w-8 bg-white/50 rounded-full"></div>
+                        <div className="h-2 w-8 bg-white/50 rounded-full"></div>
+                        <div className="h-2 w-8 bg-white/50 rounded-full"></div>
+                    </div>
                 </div>
             </div>
         </div>

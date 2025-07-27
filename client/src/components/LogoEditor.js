@@ -13,6 +13,8 @@ import {
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent } from './ui/card';
+import BrandingMockup from './BrandingMockup';
+import MockupPreview from './MockupPreview';
 
 const LogoEditor = () => {
     const location = useLocation();
@@ -21,7 +23,8 @@ const LogoEditor = () => {
     const [formData, setFormData] = useState({
         companyName: location.state?.formData?.companyName || 'Company Name',
         brandColor: '#7c9c3f',
-        fontSize: 1.2
+        fontSize: 3, // Base font size, e.g., in rem or a multiplier
+        iconSize: 6   // Base icon size, e.g., in rem
     });
 
     // Farklı fontlar için array
@@ -35,7 +38,13 @@ const LogoEditor = () => {
 
     useEffect(() => {
         if (location.state?.selectedLogo) {
-            setSelectedLogo(location.state.selectedLogo);
+            const { selectedLogo } = location.state;
+            setSelectedLogo(selectedLogo);
+            setFormData(prev => ({
+                ...prev,
+                brandColor: selectedLogo.brandColor || '#7c9c3f',
+            }));
+            setSelectedFont(selectedLogo.logoFont || 'Inter');
         }
     }, [location.state]);
 
@@ -50,8 +59,11 @@ const LogoEditor = () => {
         navigate('/pricing', {
             state: {
                 selectedLogo,
-                formData: location.state?.formData,
-                editedData: formData
+                formData: {
+                    ...location.state?.formData,
+                    ...formData,
+                    logoFont: selectedFont
+                }
             }
         });
     };
@@ -137,13 +149,19 @@ const LogoEditor = () => {
                                         <Image className="w-4 h-4 inline mr-2" />
                                         Selected Logo
                                     </label>
-                                    <div className="bg-gray-50 rounded-lg p-4 flex items-center justify-center">
+                                    <div className="bg-gray-50 rounded-lg p-4 flex items-center justify-center h-24">
                                         {selectedLogo && (
-                                            <img
-                                                src={selectedLogo.previewUrl || selectedLogo.preview}
-                                                alt="Selected Logo"
-                                                className="max-w-full max-h-20 object-contain"
-                                            />
+                                            <div
+                                                className="w-20 h-20"
+                                                style={{
+                                                    backgroundColor: formData.brandColor,
+                                                    maskImage: `url(${selectedLogo.previewUrl || selectedLogo.preview})`,
+                                                    WebkitMaskImage: `url(${selectedLogo.previewUrl || selectedLogo.preview})`,
+                                                    maskSize: 'contain',
+                                                    maskRepeat: 'no-repeat',
+                                                    maskPosition: 'center',
+                                                }}
+                                            ></div>
                                         )}
                                     </div>
                                 </div>
@@ -172,11 +190,27 @@ const LogoEditor = () => {
                                     </label>
                                     <input
                                         type="range"
-                                        min="0.8"
-                                        max="2"
+                                        min="1.5"
+                                        max="5"
                                         step="0.1"
                                         value={formData.fontSize}
                                         onChange={(e) => handleInputChange('fontSize', parseFloat(e.target.value))}
+                                        className="w-full"
+                                    />
+                                </div>
+                                
+                                {/* Icon Size */}
+                                <div className="control-group">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Icon Size: {formData.iconSize}
+                                    </label>
+                                    <input
+                                        type="range"
+                                        min="3"
+                                        max="12"
+                                        step="0.5"
+                                        value={formData.iconSize}
+                                        onChange={(e) => handleInputChange('iconSize', parseFloat(e.target.value))}
                                         className="w-full"
                                     />
                                 </div>
@@ -203,155 +237,27 @@ const LogoEditor = () => {
                         </div>
 
                         {/* Right Panel - Mockup Preview */}
-                        <div className="flex-1 bg-white rounded-lg shadow-lg p-8">
-                            <div className="mockup-scene relative w-full h-96">
-                                {/* Left Section - Mockup Cards */}
-                                <div className="absolute left-0 top-0 w-3/5 h-full bg-gray-800 rounded-lg p-6 flex flex-wrap gap-4 items-center justify-center">
-                                    {/* Large white card */}
-                                    <div className="bg-white rounded-lg p-4 w-32 h-20 flex items-center justify-center shadow-lg">
-                                        <div className="logo flex items-center gap-2">
-                                            {selectedLogo && (
-                                                <img
-                                                    src={selectedLogo.previewUrl || selectedLogo.preview}
-                                                    alt="Logo"
-                                                    className="w-4 h-4 object-contain"
-                                                />
-                                            )}
-                                            <span 
-                                                className="font-bold"
-                                                style={{
-                                                    color: formData.brandColor,
-                                                    fontSize: `${formData.fontSize}em`,
-                                                    fontFamily: selectedFont
-                                                }}
-                                            >
-                                                {formData.companyName}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Vertical green card */}
-                                    <div 
-                                        className="rounded-lg p-4 w-16 h-24 flex items-center justify-center shadow-lg"
-                                        style={{ backgroundColor: formData.brandColor }}
-                                    >
-                                        <div className="logo flex flex-col items-center gap-1 text-white">
-                                            {selectedLogo && (
-                                                <img
-                                                    src={selectedLogo.previewUrl || selectedLogo.preview}
-                                                    alt="Logo"
-                                                    className="w-4 h-4 object-contain"
-                                                />
-                                            )}
-                                            <span 
-                                                className="font-bold text-xs"
-                                                style={{
-                                                    fontSize: `${formData.fontSize * 0.8}em`,
-                                                    fontFamily: selectedFont
-                                                }}
-                                            >
-                                                {formData.companyName}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Large green card */}
-                                    <div 
-                                        className="rounded-lg p-4 w-32 h-20 flex items-center justify-center shadow-lg"
-                                        style={{ backgroundColor: formData.brandColor }}
-                                    >
-                                        <div className="logo flex items-center gap-2 text-white">
-                                            {selectedLogo && (
-                                                <img
-                                                    src={selectedLogo.previewUrl || selectedLogo.preview}
-                                                    alt="Logo"
-                                                    className="w-4 h-4 object-contain"
-                                                />
-                                            )}
-                                            <span 
-                                                className="font-bold"
-                                                style={{
-                                                    fontSize: `${formData.fontSize}em`,
-                                                    fontFamily: selectedFont
-                                                }}
-                                            >
-                                                {formData.companyName}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Medium green card */}
-                                    <div 
-                                        className="rounded-lg p-4 w-24 h-16 flex items-center justify-center shadow-lg"
-                                        style={{ backgroundColor: formData.brandColor }}
-                                    >
-                                        <div className="logo flex items-center gap-1 text-white">
-                                            {selectedLogo && (
-                                                <img
-                                                    src={selectedLogo.previewUrl || selectedLogo.preview}
-                                                    alt="Logo"
-                                                    className="w-3 h-3 object-contain"
-                                                />
-                                            )}
-                                            <span 
-                                                className="font-bold text-sm"
-                                                style={{
-                                                    fontSize: `${formData.fontSize * 0.9}em`,
-                                                    fontFamily: selectedFont
-                                                }}
-                                            >
-                                                {formData.companyName}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Small white card */}
-                                    <div className="bg-white rounded-lg p-3 w-20 h-12 flex items-center justify-center shadow-lg">
-                                        <div className="logo flex items-center gap-1">
-                                            {selectedLogo && (
-                                                <img
-                                                    src={selectedLogo.previewUrl || selectedLogo.preview}
-                                                    alt="Logo"
-                                                    className="w-3 h-3 object-contain"
-                                                />
-                                            )}
-                                            <span 
-                                                className="font-bold text-xs"
-                                                style={{
-                                                    color: formData.brandColor,
-                                                    fontSize: `${formData.fontSize * 0.7}em`,
-                                                    fontFamily: selectedFont
-                                                }}
-                                            >
-                                                {formData.companyName}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Right Section - Main Logo */}
-                                <div className="absolute right-0 top-0 w-2/5 h-full bg-white rounded-lg flex flex-col items-center justify-center gap-6">
-                                    <div className="main-logo flex flex-col items-center gap-4">
-                                        {selectedLogo && (
-                                            <img
-                                                src={selectedLogo.previewUrl || selectedLogo.preview}
-                                                alt="Main Logo"
-                                                className="w-24 h-24 object-contain"
-                                            />
-                                        )}
-                                        <div 
-                                            className="text-3xl font-light tracking-wider"
-                                            style={{
-                                                color: formData.brandColor,
-                                                fontSize: `${formData.fontSize * 2.5}em`,
-                                                fontFamily: selectedFont
-                                            }}
-                                        >
-                                            {formData.companyName}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div className="flex-1 space-y-4">
+                            {selectedLogo && (
+                                <>
+                                    <MockupPreview 
+                                        logo={selectedLogo}
+                                        companyName={formData.companyName}
+                                        brandColor={formData.brandColor}
+                                        logoFont={selectedFont}
+                                        fontSize={formData.fontSize}
+                                        iconSize={formData.iconSize}
+                                    />
+                                    <BrandingMockup 
+                                        logo={selectedLogo}
+                                        companyName={formData.companyName}
+                                        brandColor={formData.brandColor}
+                                        logoFont={selectedFont}
+                                        fontSize={formData.fontSize}
+                                        iconSize={formData.iconSize}
+                                    />
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -4,7 +4,6 @@ import { AuthProvider, useAuth } from './AuthContext';
 
 import './index.css';
 import LandingPage from './components/LandingPage';
-import LogoCreator from './components/LogoCreator';
 import LogoResults from './components/LogoResults';
 import LogoEditor from './components/LogoEditor';
 import PricingPage from './components/PricingPage';
@@ -17,7 +16,7 @@ import DocumentGenerator from './components/DocumentGenerator';
 import BrandDetails from './components/BrandDetails';
 import ProgressTracker from './components/ProgressTracker';
 import NextStepCTA from './components/NextStepCTA';
-// import AuthPage from './components/AuthPage';
+import AuthPage from './components/AuthPage';
 import AcceptInvitationPage from './components/AcceptInvitationPage';
 import TeamManagementPage from './components/TeamManagementPage';
 import PressKitPage from './components/PressKitPage';
@@ -29,6 +28,7 @@ import SentimentAnalysisDashboard from './components/SentimentAnalysisDashboard'
 import ThoughtLeadership from './components/ThoughtLeadership';
 import MicroSurveyDashboard from './components/MicroSurveyDashboard';
 import SmartDocumentGenerator from './components/SmartDocumentGenerator';
+import BrandKitManager from './components/BrandKitManager';
 
 // A wrapper for routes that require authentication
 /* const ProtectedRoute = ({ allowedRoles }) => {
@@ -323,14 +323,15 @@ function App() {
                     <Route path="/" element={<LandingPage />} />
                     
                     {/* Ficonica MVP Routes */}
-                    <Route path="/logo-creator" element={<LogoCreator />} />
                     <Route path="/logo-results" element={<LogoResults />} />
                     <Route path="/logo-editor" element={<LogoEditor />} />
                     <Route path="/pricing" element={<PricingPage />} />
+                    <Route path="/auth" element={<AuthPage />} />
                     
                     {/* Dashboard and tools - with sidebar layout */}
                     <Route path="/dashboard" element={<Layout />}>
                         <Route index element={<Dashboard />} />
+                        <Route path="brand-kit" element={<BrandKitManager />} />
                         <Route path="brand-consistency" element={<BrandConsistencyAuditor />} />
                         <Route path="website-audit" element={<WebsiteReportGenerator />} />
                         <Route path="press-kit" element={<PressKitSettings />} />

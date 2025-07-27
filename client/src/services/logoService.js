@@ -6,7 +6,8 @@ import {
     orderBy, 
     limit,
     doc,
-    getDoc
+    getDoc,
+    startAfter
 } from 'firebase/firestore';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
@@ -167,20 +168,29 @@ export class LogoService {
     }
 
     /**
-     * Tüm yayınlanmış logoları getir
-     * @param {number} limit - Kaç logo getirileceği
-     * @returns {Promise<Array>} Logo listesi
+     * Tüm yayınlanmış logoları sayfalanmış olarak getir
+     * @param {Object} options - Sayfalama seçenekleri
+     * @param {number} options.limitCount - Kaç logo getirileceği
+     * @param {import('firebase/firestore').Timestamp} options.lastVisibleTimestamp - Hangi dokümandan sonra başlanacağı (timestamp)
+     * @returns {Promise<{logos: Array, lastTimestamp: import('firebase/firestore').Timestamp}>} Logo listesi ve bir sonraki sayfa için son dokümanın timestamp'i
      */
-    static async getAllPublishedLogos(limitCount = 20) {
+    static async getAllPublishedLogos({ limitCount = 4, lastVisibleTimestamp = null }) {
         try {
-            console.log('📋 Tüm yayınlanmış logolar getiriliyor...');
+            console.log(`📋 Yayınlanmış logolar getiriliyor... Limit: ${limitCount}`);
             
             const logosRef = collection(db, 'logos');
-            const q = query(
-                logosRef,
+            
+            const queryConstraints = [
                 where('status', '==', 'published'),
-                limit(limitCount * 2) // Daha fazla logo getir
-            );
+                orderBy('createdAt', 'desc'),
+                limit(limitCount)
+            ];
+
+            if (lastVisibleTimestamp) {
+                queryConstraints.push(startAfter(lastVisibleTimestamp));
+            }
+            
+            const q = query(logosRef, ...queryConstraints);
 
             console.log('📋 Firestore sorgusu oluşturuldu');
             const querySnapshot = await getDocs(q);
@@ -199,23 +209,21 @@ export class LogoService {
                             id: doc.id,
                             ...logoData,
                             svgUrl,
-                            previewUrl: svgUrl
+                            previewUrl: svgUrl,
+                            // Firestore Document'ını sonradan kullanabilmek için ekliyoruz
+                            firestoreDoc: doc 
                         });
                     }
                 } catch (error) {
                     console.error(`SVG URL alınamadı: ${doc.id}`, error);
                 }
             }
+            
+            // Bir sonraki sorgu için son görünür dokümanın timestamp'ini al
+            const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
+            const lastTimestamp = lastDoc ? lastDoc.data().createdAt : null;
 
-            // Client-side sıralama
-            logos.sort((a, b) => {
-                if (a.createdAt && b.createdAt) {
-                    return b.createdAt.toDate() - a.createdAt.toDate();
-                }
-                return 0;
-            });
-
-            return logos.slice(0, limitCount);
+            return { logos, lastTimestamp };
         } catch (error) {
             console.error('Logolar getirilirken hata:', error);
             throw error;

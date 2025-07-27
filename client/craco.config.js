@@ -13,6 +13,7 @@ module.exports = {
         "stream": require.resolve("stream-browserify"),
         "url": require.resolve("url/"),
         "assert": require.resolve("assert/"),
+        "path": require.resolve("path-browserify"),
         "process": require.resolve("process/browser.js"),
       };
 
