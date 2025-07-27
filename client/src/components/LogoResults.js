@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
     ArrowLeft, 
@@ -16,6 +16,9 @@ import {
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import BrandingMockup from './BrandingMockup';
+import MockupPreview from './MockupPreview';
+
+const LOGO_BATCH_SIZE = 4;
 
 const LogoResults = () => {
     const location = useLocation();
@@ -25,6 +28,50 @@ const LogoResults = () => {
     const [logos, setLogos] = useState([]);
     const [finalLogo, setFinalLogo] = useState(null);
     const [showFinalPreview, setShowFinalPreview] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [lastVisibleTimestamp, setLastVisibleTimestamp] = useState(null);
+    
+    const observer = useRef();
+
+    const loadMoreLogos = useCallback(async () => {
+        if (isLoadingMore || !hasMore) return;
+
+        setIsLoadingMore(true);
+
+        const { LogoService } = await import('../services/logoService');
+        const { logos: newLogos, lastTimestamp } = await LogoService.getAllPublishedLogos({
+            limitCount: LOGO_BATCH_SIZE,
+            lastVisibleTimestamp: lastVisibleTimestamp,
+        });
+
+        const logosWithStyles = newLogos.map(logo => ({
+            ...logo,
+            brandColor: getRandomColor(),
+            logoFont: getRandomFont()
+        }));
+
+        setLogos(prevLogos => [...prevLogos, ...logosWithStyles]);
+        setLastVisibleTimestamp(lastTimestamp);
+        
+        if (newLogos.length < LOGO_BATCH_SIZE) {
+            setHasMore(false);
+        }
+        
+        setIsLoadingMore(false);
+
+    }, [isLoadingMore, hasMore, lastVisibleTimestamp]);
+
+    const lastLogoElementRef = useCallback(node => {
+        if (isLoadingMore) return;
+        if (observer.current) observer.current.disconnect();
+        observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore) {
+                loadMoreLogos();
+            }
+        });
+        if (node) observer.current.observe(node);
+    }, [isLoadingMore, hasMore, loadMoreLogos]);
 
     // Farklı fontlar için array
     const fonts = [
@@ -53,64 +100,48 @@ const LogoResults = () => {
     };
 
     useEffect(() => {
-        const loadLogos = async () => {
-            try {
-                let initialLogos = [];
-                // Önce location state'den logo verilerini kontrol et
-                if (location.state?.logos && location.state.logos.length > 0) {
-                    initialLogos = location.state.logos;
-                }
-                // Eğer location state'de logo yoksa, form verilerine göre getir
-                else if (location.state?.formData) {
-                    const { LogoService } = await import('../services/logoService');
-                    const fetchedLogos = await LogoService.getAllPublishedLogos(20);
+        const loadInitialLogos = async () => {
+            setIsLoading(true);
+            const { LogoService } = await import('../services/logoService');
+            const { logos: initialLogos, lastTimestamp } = await LogoService.getAllPublishedLogos({
+                limitCount: LOGO_BATCH_SIZE,
+                lastVisibleTimestamp: null,
+            });
 
-                    // Eğer Firebase'den logo gelmezse mock verileri kullan
-                    if (!fetchedLogos || fetchedLogos.length === 0) {
-                        initialLogos = LogoService.getMockLogos('technology');
-                    } else {
-                        initialLogos = fetchedLogos;
-                    }
-                } else {
-                    // Hiçbir veri yoksa mock logoları göster
-                    const { LogoService } = await import('../services/logoService');
-                    initialLogos = LogoService.getMockLogos('technology');
-                }
+            const logosWithStyles = initialLogos.map(logo => ({
+                ...logo,
+                brandColor: getRandomColor(),
+                logoFont: getRandomFont()
+            }));
 
-                const logosWithStyles = initialLogos.map(logo => ({
-                    ...logo,
-                    brandColor: getRandomColor(),
-                    logoFont: getRandomFont()
-                }));
-                setLogos(logosWithStyles);
+            setLogos(logosWithStyles);
+            setLastVisibleTimestamp(lastTimestamp);
 
-            } catch (error) {
-                console.error('Logo yükleme hatası:', error);
-                // Hata durumunda mock verileri kullan
-                const { LogoService } = await import('../services/logoService');
-                const mockLogos = LogoService.getMockLogos('technology');
-                const logosWithStyles = mockLogos.map(logo => ({
-                    ...logo,
-                    brandColor: getRandomColor(),
-                    logoFont: getRandomFont()
-                }));
-                setLogos(logosWithStyles);
-            } finally {
-                setIsLoading(false);
+            if (initialLogos.length < LOGO_BATCH_SIZE) {
+                setHasMore(false);
             }
+            setIsLoading(false);
         };
 
-        loadLogos();
-    }, [location.state]);
+        loadInitialLogos();
+    }, []);
+
 
     const handleLogoSelect = (logo) => {
         setSelectedLogo(logo);
     };
 
     const handleEdit = (logo) => {
+        console.log('LogoResults - "Customize Logo" butonuna tıklandı.');
+        const serializableLogo = {
+            id: logo.id,
+            previewUrl: logo.previewUrl || logo.preview,
+            brandColor: logo.brandColor,
+            logoFont: logo.logoFont
+        };
         navigate('/logo-editor', {
             state: {
-                selectedLogo: logo,
+                selectedLogo: serializableLogo,
                 formData: location.state?.formData
             }
         });
@@ -121,10 +152,170 @@ const LogoResults = () => {
         alert('Logo indirme özelliği yakında eklenecek!');
     };
 
-    const handlePurchase = (logo) => {
+    const handlePurchase = async (logo) => {
+        console.log('LogoResults - Logo satın alma işlemi başlatıldı.');
+        console.log("Starting purchase process for logo:", logo);
+
+        // --- Step 1: Generate the definitive, colored SVG content ---
+        const companyName = location.state?.formData?.companyName || 'Company Name';
+        const brandColor = logo.brandColor;
+        const logoFont = logo.logoFont;
+        const previewUrl = logo.previewUrl || logo.preview;
+
+        console.log("Fetching original icon SVG from:", previewUrl);
+        const iconResponse = await fetch(previewUrl);
+        if (!iconResponse.ok) {
+            console.error("Failed to fetch SVG icon for purchase.");
+            alert("Logo verileri alınamadı. Lütfen tekrar deneyin.");
+            return;
+        }
+        const originalSvgText = await iconResponse.text();
+        console.log("Successfully fetched icon SVG.");
+
+        console.log('%c[SVG Modify] Starting SVG modification process.', 'color: #28a745; font-weight: bold;');
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(originalSvgText, 'image/svg+xml');
+        const finalSvgElement = svgDoc.documentElement; // Modify the original SVG element directly
+        console.log('[SVG Modify] Original SVG parsed into a document.');
+
+
+        console.log("[SVG Modify] Applying brand color to icon:", brandColor);
+        finalSvgElement.querySelectorAll('*').forEach(el => {
+            if (el.tagName.toLowerCase() === 'svg') return;
+            const fill = el.getAttribute('fill');
+            if (!fill || ['black', '#000', '#000000'].includes(fill.toLowerCase())) {
+                el.setAttribute('fill', brandColor);
+            }
+        });
+        console.log('[SVG Modify] Brand color applied.');
+
+        console.log('[SVG Modify] Restructuring SVG content...');
+        
+        // Preserve <defs> and <style> tags
+        const defs = finalSvgElement.querySelector('defs');
+        const style = finalSvgElement.querySelector('style');
+        
+        // Group all visual elements to measure them
+        const visualChildren = Array.from(finalSvgElement.children).filter(
+            (el) => el.tagName.toLowerCase() !== 'defs' && el.tagName.toLowerCase() !== 'style'
+        );
+
+        if (visualChildren.length === 0) {
+            console.error("[SVG Modify] No visual elements found in the SVG.");
+            alert("The selected icon seems to be empty. Please try another one.");
+            return;
+        }
+
+        // To accurately measure the bounding box, we must temporarily add the SVG to the live DOM.
+        const tempSvg = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        const tempGroup = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'g');
+        
+        visualChildren.forEach(child => tempGroup.appendChild(child.cloneNode(true)));
+        tempSvg.appendChild(tempGroup);
+
+        // Style it to be invisible and out of the document flow
+        tempSvg.style.position = 'absolute';
+        tempSvg.style.top = '-9999px';
+        tempSvg.style.left = '-9999px';
+        
+        document.body.appendChild(tempSvg);
+        
+        let iconBBox;
+        try {
+            iconBBox = tempGroup.getBBox();
+            console.log('[SVG Modify] Measured icon BBox from live DOM:', iconBBox);
+        } catch (e) {
+            console.error('[SVG Modify] Could not measure icon dimensions, falling back to defaults.', e);
+            iconBBox = { x: 0, y: 0, width: 128, height: 128 }; // Default fallback
+        } finally {
+            // Clean up by removing the temporary SVG from the DOM
+            document.body.removeChild(tempSvg);
+        }
+
+        // Now, clear the original SVG content to rebuild it
+        while (finalSvgElement.firstChild) {
+            finalSvgElement.removeChild(finalSvgElement.firstChild);
+        }
+        console.log('[SVG Modify] Original SVG content cleared to begin restructuring.');
+
+        // Add back the preserved definitions first
+        if (defs) finalSvgElement.appendChild(defs);
+        if (style) finalSvgElement.appendChild(style);
+
+        // Set new attributes for the final composition
+        const canvasWidth = 512;
+        const canvasHeight = 512;
+        finalSvgElement.setAttribute('width', String(canvasWidth));
+        finalSvgElement.setAttribute('height', String(canvasHeight));
+        finalSvgElement.setAttribute('viewBox', `0 0 ${canvasWidth} ${canvasHeight}`);
+        console.log('[SVG Modify] SVG container attributes resized.');
+
+        // --- DYNAMIC CENTERING LOGIC ---
+        const textHeight = 150; 
+        const padding = canvasWidth * 0.1; 
+
+        const availableWidth = canvasWidth - padding * 2;
+        const availableHeight = canvasHeight - textHeight - padding;
+
+        const scale = Math.min(
+            availableWidth / iconBBox.width,
+            availableHeight / iconBBox.height
+        );
+        
+        const scaledIconWidth = iconBBox.width * scale;
+        const scaledIconHeight = iconBBox.height * scale;
+
+        const translateX = (canvasWidth - scaledIconWidth) / 2 - (iconBBox.x * scale);
+        const translateY = (availableHeight - scaledIconHeight) / 2 - (iconBBox.y * scale) + padding / 2;
+        
+        console.log(`[SVG Modify] Calculated transform: translate(${translateX}, ${translateY}) scale(${scale})`);
+        
+        // Create the new group structure
+        const mainGroup = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const iconGroup = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'g');
+        iconGroup.setAttribute('transform', `translate(${translateX}, ${translateY}) scale(${scale})`);
+        
+        visualChildren.forEach(child => {
+            iconGroup.appendChild(child);
+        });
+        console.log(`[SVG Modify] Reparented ${visualChildren.length} original nodes into new group.`);
+
+        mainGroup.appendChild(iconGroup);
+        
+        console.log('[SVG Modify] Creating text element for company name...');
+        const textElement = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'text');
+        textElement.setAttribute('x', '50%');
+        textElement.setAttribute('y', `${canvasHeight - textHeight / 1.5}`);
+        textElement.setAttribute('font-family', `'${logoFont}', Arial, sans-serif`);
+        textElement.setAttribute('font-size', '48px');
+        textElement.setAttribute('font-weight', 'bold');
+        textElement.setAttribute('text-anchor', 'middle');
+        textElement.setAttribute('fill', brandColor);
+        textElement.textContent = companyName;
+        console.log('[SVG Modify] Text element created.');
+
+        mainGroup.appendChild(textElement);
+
+        finalSvgElement.appendChild(mainGroup);
+        console.log('[SVG Modify] All parts assembled into the final SVG document.');
+
+        const serializer = new XMLSerializer();
+        const finalSvgContent = serializer.serializeToString(finalSvgElement);
+        console.log('%c[SVG Modify] Final SVG content generated and serialized to string.', 'color: #28a745; font-weight: bold;');
+
+        // --- Step 2: Create a serializable object with the final SVG ---
+        const serializableLogo = {
+            id: logo.id,
+            finalSvg: finalSvgContent, // Pass the full SVG content
+            previewUrl: previewUrl, // Keep for display purposes on the next page
+            brandColor: brandColor,
+            logoFont: logoFont,
+        };
+        console.log("Navigating to /pricing with final logo data.");
+
         navigate('/pricing', {
             state: {
-                selectedLogo: logo,
+                selectedLogo: serializableLogo,
                 formData: location.state?.formData
             }
         });
@@ -162,6 +353,7 @@ const LogoResults = () => {
     };
 
     const closeFinalPreview = () => {
+        console.log('LogoResults - Final Preview "Kapat" butonuna tıklandı.');
         setShowFinalPreview(false);
         setFinalLogo(null);
     };
@@ -169,135 +361,6 @@ const LogoResults = () => {
     // Rastgele renk oluşturma fonksiyonu
     const getRandomColor = () => {
         return `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`;
-    };
-
-    // Mockup Preview Component for each logo
-    const MockupPreview = ({ logo, companyName, brandColor, logoFont }) => {
-        const fontSize = 1; // Base font size, adjust as needed
-
-        return (
-            <div className="bg-gray-800 p-6 rounded-lg grid grid-cols-2 gap-4">
-                {/* Large white card */}
-                <div className="bg-white rounded-lg p-3 w-full h-24 flex items-center justify-center shadow-lg">
-                    <div className="logo flex items-center gap-2">
-                        <div
-                            className="w-8 h-8"
-                            style={{
-                                background: brandColor,
-                                maskImage: `url(${logo.previewUrl || logo.preview})`,
-                                WebkitMaskImage: `url(${logo.previewUrl || logo.preview})`,
-                                maskSize: 'contain',
-                                WebkitMaskSize: 'contain',
-                                maskRepeat: 'no-repeat',
-                                WebkitMaskRepeat: 'no-repeat',
-                                maskPosition: 'center',
-                                WebkitMaskPosition: 'center',
-                            }}
-                        ></div>
-                        <span 
-                            className="font-bold text-2xl"
-                            style={{
-                                color: brandColor,
-                                fontFamily: logoFont
-                            }}
-                        >
-                            {companyName}
-                        </span>
-                    </div>
-                </div>
-
-                {/* Vertical colored card */}
-                <div 
-                    className="rounded-lg p-3 w-full h-24 flex items-center justify-center shadow-lg"
-                    style={{ backgroundColor: brandColor }}
-                >
-                    <div className="logo flex flex-col items-center gap-2 text-white">
-                        <div
-                            className="w-8 h-8"
-                            style={{
-                                background: 'white',
-                                maskImage: `url(${logo.previewUrl || logo.preview})`,
-                                WebkitMaskImage: `url(${logo.previewUrl || logo.preview})`,
-                                maskSize: 'contain',
-                                WebkitMaskSize: 'contain',
-                                maskRepeat: 'no-repeat',
-                                WebkitMaskRepeat: 'no-repeat',
-                                maskPosition: 'center',
-                                WebkitMaskPosition: 'center',
-                            }}
-                        ></div>
-                        <span 
-                            className="font-bold text-lg"
-                            style={{
-                                fontFamily: logoFont
-                            }}
-                        >
-                            {companyName}
-                        </span>
-                    </div>
-                </div>
-
-                {/* Large colored card */}
-                <div 
-                    className="rounded-lg p-3 w-full h-24 flex items-center justify-center shadow-lg"
-                    style={{ backgroundColor: brandColor }}
-                >
-                    <div className="logo flex items-center gap-2 text-white">
-                        <div
-                            className="w-8 h-8"
-                            style={{
-                                background: 'white',
-                                maskImage: `url(${logo.previewUrl || logo.preview})`,
-                                WebkitMaskImage: `url(${logo.previewUrl || logo.preview})`,
-                                maskSize: 'contain',
-                                WebkitMaskSize: 'contain',
-                                maskRepeat: 'no-repeat',
-                                WebkitMaskRepeat: 'no-repeat',
-                                maskPosition: 'center',
-                                WebkitMaskPosition: 'center',
-                            }}
-                        ></div>
-                        <span 
-                            className="font-bold text-2xl"
-                            style={{
-                                fontFamily: logoFont
-                            }}
-                        >
-                            {companyName}
-                        </span>
-                    </div>
-                </div>
-
-                {/* Small white card with colored text */}
-                <div className="bg-white rounded-lg p-3 w-full h-24 flex items-center justify-center shadow-lg">
-                    <div className="logo flex items-center gap-1">
-                        <div
-                            className="w-6 h-6"
-                            style={{
-                                background: brandColor,
-                                maskImage: `url(${logo.previewUrl || logo.preview})`,
-                                WebkitMaskImage: `url(${logo.previewUrl || logo.preview})`,
-                                maskSize: 'contain',
-                                WebkitMaskSize: 'contain',
-                                maskRepeat: 'no-repeat',
-                                WebkitMaskRepeat: 'no-repeat',
-                                maskPosition: 'center',
-                                WebkitMaskPosition: 'center',
-                            }}
-                        ></div>
-                        <span 
-                            className="font-bold text-xl"
-                            style={{
-                                color: brandColor,
-                                fontFamily: logoFont
-                            }}
-                        >
-                            {companyName}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        );
     };
 
     if (isLoading) {
@@ -382,7 +445,7 @@ const LogoResults = () => {
 
                     <div className="mt-6 flex justify-end gap-2">
                         <Button variant="outline" onClick={closeFinalPreview}>Kapat</Button>
-                        <Button onClick={() => handlePurchase(finalLogo.logo)}>
+                        <Button onClick={() => { console.log('LogoResults - Final Preview "Beğendim, Devam Et" butonuna tıklandı.'); handlePurchase(finalLogo.logo); }}>
                             <Sparkles className="w-4 h-4 mr-2" />
                             Beğendim, Devam Et
                         </Button>
@@ -401,7 +464,7 @@ const LogoResults = () => {
                             <span className="text-xl font-bold text-gray-900">Ficonica</span>
                         </div>
                         <button
-                            onClick={() => navigate('/logo-creator')}
+                            onClick={() => { console.log('LogoResults - "Geri" butonuna tıklandı.'); navigate('/logo-creator'); }}
                             className="text-gray-600 hover:text-gray-900"
                         >
                             <ArrowLeft className="w-5 h-5" />
@@ -426,7 +489,7 @@ const LogoResults = () => {
 
                     {/* Logo Cards - One per row, horizontal layout */}
                     <div className="space-y-6">
-                        {logos.map((logo) => {
+                        {logos.map((logo, index) => {
                             const logoStyle = {
                                 background: logo.brandColor,
                                 maskImage: `url(${logo.previewUrl || logo.preview})`,
@@ -441,18 +504,14 @@ const LogoResults = () => {
                             return (
                                 <Card
                                     key={logo.id}
-                                    className={`cursor-pointer transition-all hover:shadow-lg bg-white ${
-                                        selectedLogo?.id === logo.id
-                                            ? 'ring-2 ring-blue-500 shadow-lg'
-                                            : 'hover:shadow-md'
-                                    }`}
-                                    onClick={() => handleLogoSelect(logo)}
+                                    ref={logos.length === index + 1 ? lastLogoElementRef : null}
+                                    className={`transition-all hover:shadow-lg bg-white`}
                                 >
                                     <CardContent className="p-6">
-                                        <div className="flex flex-col lg:flex-row gap-6">
+                                        <div className="flex flex-col lg:flex-row gap-6 lg:items-start">
                                                                                     {/* Left Side - Logo */}
                                         <div className="lg:w-1/2">
-                                            <div className="flex flex-col items-center justify-center h-full">
+                                            <div className="flex flex-col items-center justify-start h-full">
                                                 {/* Logo and Company Name Combined */}
                                                 <div className="w-full h-[32rem] bg-white rounded-lg flex flex-col items-center justify-center p-4 border border-gray-200 mb-4">
                                                     {/* Logo Icon */}
@@ -475,23 +534,14 @@ const LogoResults = () => {
                                                     </h3>
                                                 </div>
 
-                                                {/* Selection Indicator */}
-                                                {selectedLogo?.id === logo.id && (
-                                                    <div className="flex items-center justify-center mb-4">
-                                                        <CheckCircle className="w-5 h-5 text-blue-600 mr-2" />
-                                                        <span className="text-blue-600 font-medium">Selected</span>
-                                                    </div>
-                                                )}
+                                                {/* Selection Indicator removed from here */}
                                             </div>
                                         </div>
 
                                             {/* Right Side - Mockup Preview */}
                                             <div className="lg:w-1/2">
-                                                <div className="space-y-4">
-                                                    <h4 className="text-lg font-semibold text-gray-900">
-                                                        Mockup Preview
-                                                    </h4>
-                                                    
+                                                {/* Mockup preview area */}
+                                                <div>
                                                     {/* Alternating Mockup Previews */}
                                                     {logos.indexOf(logo) % 2 === 0 ? (
                                                         <MockupPreview 
@@ -508,71 +558,76 @@ const LogoResults = () => {
                                                             logoFont={logo.logoFont}
                                                         />
                                                     )}
-                                                    
-                                                    {/* Like Buttons */}
-                                                    <div className="flex flex-wrap gap-2 pt-4">
-                                                        <Button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleLikeColor(logo, logo.brandColor);
-                                                            }}
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="flex-1 min-w-0"
-                                                        >
-                                                            <Palette className="w-3 h-3 mr-1" />
-                                                            Rengi Beğendim
-                                                        </Button>
-                                                        <Button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleLikeIcon(logo, logo.brandColor);
-                                                            }}
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="flex-1 min-w-0"
-                                                        >
-                                                            <Image className="w-3 h-3 mr-1" />
-                                                            İkonu Beğendim
-                                                        </Button>
-                                                        <Button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleLikeFont(logo, logo.brandColor, logo.logoFont);
-                                                            }}
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="flex-1 min-w-0"
-                                                        >
-                                                            <Type className="w-3 h-3 mr-1" />
-                                                            Fontu Beğendim
-                                                        </Button>
-                                                    </div>
-
-                                                    {/* Action Buttons */}
-                                                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                                                        <Button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleEdit(logo);
-                                                            }}
-                                                            className="flex-1"
-                                                        >
-                                                            <Edit3 className="w-4 h-4 mr-2" />
-                                                            Customize Logo
-                                                        </Button>
-                                                        <Button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handlePurchase(logo);
-                                                            }}
-                                                            className="flex-1 bg-blue-600 hover:bg-blue-700"
-                                                        >
-                                                            <Sparkles className="w-4 h-4 mr-2" />
-                                                            Get Logo & Brand Kit
-                                                        </Button>
-                                                    </div>
                                                 </div>
+                                            </div>
+                                        </div>
+                                        
+                                        {/* Buttons area for the whole card */}
+                                        <div className="pt-6 space-y-4">
+                                            {/* Like Buttons */}
+                                            <div className="flex gap-3">
+                                                <Button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        console.log('LogoResults - "Rengi Beğendim" butonuna tıklandı.');
+                                                        handleLikeColor(logo, logo.brandColor);
+                                                    }}
+                                                    variant="outline"
+                                                    className="flex-1"
+                                                >
+                                                    <Palette className="w-4 h-4 mr-2" />
+                                                    <span>Rengi Beğendim</span>
+                                                </Button>
+                                                <Button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        console.log('LogoResults - "İkonu Beğendim" butonuna tıklandı.');
+                                                        handleLikeIcon(logo, logo.brandColor);
+                                                    }}
+                                                    variant="outline"
+                                                    className="flex-1"
+                                                >
+                                                    <Image className="w-4 h-4 mr-2" />
+                                                    <span>İkonu Beğendim</span>
+                                                </Button>
+                                                <Button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        console.log('LogoResults - "Fontu Beğendim" butonuna tıklandı.');
+                                                        handleLikeFont(logo, logo.brandColor, logo.logoFont);
+                                                    }}
+                                                    variant="outline"
+                                                    className="flex-1"
+                                                >
+                                                    <Type className="w-4 h-4 mr-2" />
+                                                    <span>Fontu Beğendim</span>
+                                                </Button>
+                                            </div>
+
+                                            {/* Action Buttons */}
+                                            <div className="flex gap-3">
+                                                <Button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleEdit(logo);
+                                                    }}
+                                                    variant="outline"
+                                                    className="flex-1 text-base font-semibold py-5"
+                                                >
+                                                    <Edit3 className="w-5 h-5 mr-2" />
+                                                    Customize Logo
+                                                </Button>
+                                                <Button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        console.log('LogoResults - "Get Logo & Brand Kit" butonuna tıklandı.');
+                                                        handlePurchase(logo);
+                                                    }}
+                                                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-base font-semibold py-5"
+                                                >
+                                                    <Sparkles className="w-5 h-5 mr-2" />
+                                                    Get Logo & Brand Kit
+                                                </Button>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -580,6 +635,13 @@ const LogoResults = () => {
                             );
                         })}
                     </div>
+
+                    {/* Loading indicator for infinite scroll */}
+                    {isLoadingMore && (
+                        <div className="text-center py-6">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                        </div>
+                    )}
 
                     {/* Package Info */}
                     <div className="bg-white rounded-lg p-6 mt-8">
